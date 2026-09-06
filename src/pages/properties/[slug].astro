@@ -1,0 +1,457 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/Container.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PropertyGallery from '../../components/PropertyGallery.astro';
+import PropertyCard from '../../components/PropertyCard.astro';
+import VideoTour from '../../components/VideoTour.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import PlaceholderImage from '../../components/PlaceholderImage.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../config';
+import { getRelatedProperties } from '../../lib/properties';
+import { resolvePropertyImages } from '../../lib/roomPhotos';
+import { pricePerWeek, monthYear, distanceLabel } from '../../lib/format';
+import { breadcrumbSchema } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const properties = await getCollection('properties');
+  return properties.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const related = await getRelatedProperties(entry, 3);
+const photos = resolvePropertyImages(entry);
+
+const currencyMap = {
+  uk: 'GBP',
+  germany: 'EUR',
+  ireland: 'EUR',
+  canada: 'CAD',
+} as Record<string, string>;
+const countryCodeMap = {
+  uk: 'GB',
+  germany: 'DE',
+  ireland: 'IE',
+  canada: 'CA',
+} as Record<string, string>;
+const currencyCode = currencyMap[d.countrySlug];
+const canonical = `${site.url}/properties/${entry.id}`;
+
+const includedKeywords = ['bills', 'wi-fi', 'wifi', 'insurance', 'heating'];
+const included = d.amenities.filter((a) =>
+  includedKeywords.some((k) => a.toLowerCase().includes(k))
+);
+
+const crumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Properties', path: '/properties' },
+  { name: d.city, path: `/properties?country=${d.countrySlug}&city=${encodeURIComponent(d.city)}` },
+  { name: d.name },
+];
+
+const accommodationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Apartment',
+  name: d.name,
+  description: `${d.roomType} student accommodation in ${d.city}, ${d.country}, ${distanceLabel(
+    d.distanceToCampusMins,
+    d.distanceMode
+  )} from ${d.nearestUniversity}.`,
+  url: canonical,
+  numberOfRooms: d.bedrooms,
+  occupancy: { '@type': 'QuantitativeValue', maxValue: d.maxOccupancy },
+  ...(d.sizeSqm
+    ? { floorSize: { '@type': 'QuantitativeValue', value: d.sizeSqm, unitCode: 'MTK' } }
+    : {}),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: d.address,
+    addressLocality: d.city,
+    addressCountry: countryCodeMap[d.countrySlug],
+  },
+  amenityFeature: d.amenities.map((a) => ({
+    '@type': 'LocationFeatureSpecification',
+    name: a,
+    value: true,
+  })),
+  ...(d.rating
+    ? {
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: d.rating,
+          reviewCount: d.reviewsCount ?? 0,
+          bestRating: 5,
+        },
+      }
+    : {}),
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: currencyCode,
+    price: d.pricePerWeek,
+    availability: 'https://schema.org/InStock',
+    url: canonical,
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      price: d.pricePerWeek,
+      priceCurrency: currencyCode,
+      referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'WEE' },
+    },
+  },
+};
+
+const keyFacts = [
+  { icon: 'wallet', label: 'Price', value: `${pricePerWeek(d.pricePerWeek, d.currency)} / week` },
+  { icon: 'home', label: 'Room type', value: d.roomType },
+  { icon: 'map', label: 'To campus', value: distanceLabel(d.distanceToCampusMins, d.distanceMode) },
+  { icon: 'calendar', label: 'Available from', value: monthYear(d.availableFrom) },
+  { icon: 'document', label: 'Tenancy', value: d.tenancyWeeksOptions.map((w) => `${w} wks`).join(' or ') },
+  { icon: 'users', label: 'Max occupancy', value: `${d.maxOccupancy} ${d.maxOccupancy === 1 ? 'person' : 'people'}` },
+  ...(d.sizeSqm ? [{ icon: 'ruler', label: 'Size', value: `${d.sizeSqm} m²` }] : []),
+  { icon: 'bath', label: 'Bathroom', value: d.roomType === 'Studio' || d.roomType === 'En-suite' || d.roomType === '1-bed apartment' ? 'Private' : 'Shared' },
+];
+
+const waText = 'Hi Stay Veno, I would like to request to book ' + d.name + ' in ' + d.city + '.';
+const waHref = `https://wa.me/${site.whatsapp.number}?text=${encodeURIComponent(waText)}`;
+
+const pageTitle = `${d.name}, ${d.city} — ${d.roomType} Student Accommodation`;
+const pageDescription = `${d.roomType} at ${d.name} in ${d.city}, ${d.country}. ${pricePerWeek(d.pricePerWeek, d.currency)}/week all-in, ${distanceLabel(d.distanceToCampusMins, d.distanceMode)} from ${d.nearestUniversity}. Verified listing with a video tour. Request to book with Stay Veno — free for students.`;
+
+const crumbSchemaItems = crumbs.map((c) => ({
+  name: c.name,
+  path: c.path ?? `/properties/${entry.id}`,
+}));
+---
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  jsonLd={[breadcrumbSchema(crumbSchemaItems), accommodationSchema]}
+>
+  <Breadcrumbs items={crumbs} />
+
+  <Container class="py-8 sm:py-10">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-800">
+            {d.roomType}
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-brand-600/10 px-2.5 py-1 text-xs font-semibold text-brand-800">
+            <Icon name="shield" size={12} /> Verified {monthYear(d.verifiedOn)}
+          </span>
+          {
+            d.rating && (
+              <span class="inline-flex items-center gap-1 rounded-full bg-navy-50 px-2.5 py-1 text-xs font-semibold text-navy-800">
+                <Icon name="star" size={12} class="text-sun-500" />
+                {d.rating.toFixed(1)} ({d.reviewsCount} reviews)
+              </span>
+            )
+          }
+        </div>
+        <h1 class="mt-3 text-2xl font-extrabold text-navy-900 sm:text-3xl lg:text-4xl">
+          {d.name}
+        </h1>
+        <p class="mt-2 flex items-center gap-1.5 text-navy-600">
+          <Icon name="map" size={16} class="text-navy-400" />
+          {d.address}
+        </p>
+      </div>
+      <div class="text-right">
+        <p class="text-2xl font-extrabold text-navy-900">
+          {pricePerWeek(d.pricePerWeek, d.currency)}
+          <span class="text-base font-medium text-navy-500">/week</span>
+        </p>
+        <p class="text-xs text-navy-500">All-in · {d.billsIncluded ? 'bills included' : 'bills extra'}</p>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <PropertyGallery images={photos} name={d.name} seed={entry.id} />
+    </div>
+
+    <div class="mt-10 grid gap-10 lg:grid-cols-[1fr_360px]">
+      <!-- Main column -->
+      <div class="min-w-0 space-y-10">
+        <!-- Key facts -->
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {
+            keyFacts.map((f) => (
+              <div class="rounded-xl border border-navy-900/10 bg-white p-3">
+                <span class="flex items-center gap-1.5 text-xs text-navy-500">
+                  <Icon name={f.icon} size={13} /> {f.label}
+                </span>
+                <p class="mt-1 text-sm font-semibold text-navy-900">{f.value}</p>
+              </div>
+            ))
+          }
+        </div>
+
+        <!-- Video tour -->
+        <div>
+          <h2 class="text-xl font-bold text-navy-900">See it before you book</h2>
+          <p class="mt-1.5 text-sm text-navy-600">
+            Watch the walkthrough, or ask us for a live video viewing of your
+            actual room.
+          </p>
+          <VideoTour
+            url={d.videoTourUrl}
+            title={d.name}
+            seed={entry.id}
+            poster={photos[1] ?? photos[0]}
+            class="mt-4"
+          />
+          {
+            d.virtualTourUrl && (
+              <a
+                href={d.virtualTourUrl}
+                rel="noopener"
+                class="mt-3 inline-flex items-center gap-2 rounded-full border border-navy-200 px-4 py-2 text-sm font-semibold text-navy-900 hover:bg-navy-50"
+              >
+                <Icon name="globe" size={15} /> Open 360° virtual tour
+              </a>
+            )
+          }
+        </div>
+
+        <!-- Overview -->
+        <div>
+          <h2 class="text-xl font-bold text-navy-900">Overview</h2>
+          <div class="rich mt-3 max-w-none text-navy-700">
+            <Content />
+          </div>
+          {
+            d.features.length > 0 && (
+              <ul class="mt-4 grid gap-2 sm:grid-cols-2">
+                {d.features.map((feat) => (
+                  <li class="flex items-start gap-2 text-sm text-navy-700">
+                    <Icon name="check-circle" size={16} class="mt-0.5 shrink-0 text-brand-600" />
+                    <span>{feat}</span>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </div>
+
+        <!-- Amenities -->
+        <div>
+          <h2 class="text-xl font-bold text-navy-900">What’s included</h2>
+          <ul class="mt-3 grid gap-2 sm:grid-cols-2">
+            {
+              d.amenities.map((a) => (
+                <li class="flex items-center gap-2 rounded-lg border border-navy-900/10 bg-white px-3 py-2 text-sm text-navy-700">
+                  <Icon name="check" size={15} class="shrink-0 text-brand-600" />
+                  {a}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <!-- Location -->
+        <div>
+          <h2 class="text-xl font-bold text-navy-900">Location & commute</h2>
+          <div class="mt-3 overflow-hidden rounded-2xl border border-navy-900/10">
+            <div class="relative aspect-[16/7]">
+              <PlaceholderImage
+                preset="campus"
+                seed={`${entry.id}-map`}
+                alt={`Map area around ${d.name}, ${d.city}`}
+                class="h-full w-full object-cover"
+              />
+              <span class="absolute left-1/2 top-1/2 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-brand-600 text-white shadow-lg">
+                <Icon name="map" size={18} />
+              </span>
+            </div>
+            <div class="space-y-2 bg-white p-4 text-sm">
+              <p class="flex items-center justify-between gap-4">
+                <span class="text-navy-600">{d.nearestUniversity}</span>
+                <span class="font-semibold text-navy-900">
+                  {distanceLabel(d.distanceToCampusMins, d.distanceMode)}
+                </span>
+              </p>
+              {
+                d.otherUniversities.map((u) => (
+                  <p class="flex items-center justify-between gap-4 border-t border-navy-900/10 pt-2">
+                    <span class="text-navy-600">{u}</span>
+                    <span class="text-navy-500">Public transport</span>
+                  </p>
+                ))
+              }
+            </div>
+          </div>
+          <p class="mt-2 text-xs text-navy-500">
+            Distances are checked by our team. Ask us for the exact route from
+            this building to your department.
+          </p>
+        </div>
+
+        <!-- Transparent pricing -->
+        <div class="rounded-2xl border border-brand-200 bg-brand-50/60 p-6">
+          <h2 class="flex items-center gap-2 text-lg font-bold text-navy-900">
+            <Icon name="tag" size={18} class="text-brand-700" /> Transparent pricing
+          </h2>
+          <div class="mt-4 grid gap-6 sm:grid-cols-2">
+            <div>
+              <p class="text-sm font-semibold text-navy-900">In the {pricePerWeek(d.pricePerWeek, d.currency)}/week</p>
+              <ul class="mt-2 space-y-1.5 text-sm text-navy-700">
+                <li class="flex items-center gap-2">
+                  <Icon name="check" size={14} class="text-brand-600" /> Rent
+                </li>
+                {
+                  (included.length ? included : ['Bills & Wi-Fi as listed']).map((i) => (
+                    <li class="flex items-center gap-2">
+                      <Icon name="check" size={14} class="text-brand-600" /> {i}
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-navy-900">To secure the room</p>
+              <ul class="mt-2 space-y-1.5 text-sm text-navy-700">
+                <li class="flex items-start gap-2">
+                  <Icon name="chevron" size={14} class="mt-0.5 -rotate-90 text-navy-400" />
+                  A holding deposit (usually 1–2 weeks’ rent) that counts towards your first payment
+                </li>
+                <li class="flex items-start gap-2">
+                  <Icon name="chevron" size={14} class="mt-0.5 -rotate-90 text-navy-400" />
+                  A security deposit set by the provider, protected under local rules
+                </li>
+                <li class="flex items-start gap-2">
+                  <Icon name="check" size={14} class="mt-0.5 text-brand-600" />
+                  <span class="font-semibold text-navy-900">No Stay Veno fee — ever</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <p class="mt-4 text-xs text-navy-500">
+            We confirm the exact deposit figures and any cancellation clause in
+            writing before you pay anything.
+          </p>
+        </div>
+
+        <!-- Provider / verification -->
+        <div class="rounded-2xl border border-navy-900/10 bg-white p-6">
+          <h2 class="flex items-center gap-2 text-lg font-bold text-navy-900">
+            <Icon name="shield" size={18} class="text-brand-700" /> Verified by Stay Veno
+          </h2>
+          <p class="mt-2 text-sm text-navy-600">
+            Operated by <span class="font-semibold text-navy-900">{d.provider}</span>.
+            Checked and verified by our team in {monthYear(d.verifiedOn)}.
+          </p>
+          <ul class="mt-4 grid gap-2 sm:grid-cols-2">
+            {
+              [
+                'Registered provider at a verified address',
+                'Room confirmed available for the dates shown',
+                'Tenancy / licence terms reviewed by our team',
+                'Current video tour of this room type',
+              ].map((c) => (
+                <li class="flex items-start gap-2 text-sm text-navy-700">
+                  <Icon name="check-circle" size={16} class="mt-0.5 shrink-0 text-brand-600" />
+                  <span>{c}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+
+      <!-- Sticky sidebar -->
+      <aside class="lg:sticky lg:top-20 lg:h-max">
+        <div class="rounded-2xl border border-navy-900/10 bg-white p-5 shadow-sm">
+          <p class="text-2xl font-extrabold text-navy-900">
+            {pricePerWeek(d.pricePerWeek, d.currency)}
+            <span class="text-base font-medium text-navy-500">/week</span>
+          </p>
+          <p class="mt-0.5 text-xs text-navy-500">
+            All-in · available {monthYear(d.availableFrom)}
+          </p>
+
+          <dl class="mt-4 space-y-2 border-y border-navy-900/10 py-4 text-sm">
+            <div class="flex justify-between">
+              <dt class="text-navy-500">Room type</dt>
+              <dd class="font-medium text-navy-900">{d.roomType}</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-navy-500">To {d.nearestUniversity.split(' ').slice(0, 2).join(' ')}…</dt>
+              <dd class="font-medium text-navy-900">{d.distanceToCampusMins} min</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-navy-500">Tenancy</dt>
+              <dd class="font-medium text-navy-900">{d.tenancyWeeksOptions.join(' / ')} wks</dd>
+            </div>
+          </dl>
+
+          <a
+            href="#request"
+            class="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+          >
+            <Icon name="sparkles" size={16} /> Request to book
+          </a>
+          <a
+            href={waHref}
+            rel="noopener"
+            class="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-navy-200 px-5 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-50"
+          >
+            <Icon name="whatsapp" size={17} /> Ask about this home
+          </a>
+          <p class="mt-3 text-center text-xs text-navy-500">
+            No payment now. We reply {site.responseTime}.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </Container>
+
+  <!-- Request to book -->
+  <section id="request" class="scroll-mt-20 bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <div class="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+        <div>
+          <SectionHeading eyebrow="Request to book" title={`Request ${d.name}`}>
+            <p>
+              Send this request and an advisor confirms availability, the exact
+              deposit and any cancellation clause — then guides you through the
+              provider’s paperwork. No payment is taken here.
+            </p>
+          </SectionHeading>
+          <div class="mt-6 rounded-2xl border border-navy-900/10 bg-white p-4 text-sm">
+            <p class="font-semibold text-navy-900">{d.name}</p>
+            <p class="text-navy-500">{d.roomType} · {d.city} · {pricePerWeek(d.pricePerWeek, d.currency)}/week</p>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-navy-900/10 bg-white p-6 shadow-sm sm:p-8">
+          <LeadForm
+            source={`property:${entry.id}`}
+            defaultDestination={d.country}
+            defaultMessage={`I'd like to request to book ${d.name} (${d.roomType}) in ${d.city}.`}
+            submitLabel="Send booking request"
+          />
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Related -->
+  {
+    related.length > 0 && (
+      <section>
+        <Container class="py-14 sm:py-16">
+          <SectionHeading eyebrow="You might also like" title={`More homes near ${d.city}`} />
+          <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((p) => <PropertyCard property={p} />)}
+          </div>
+        </Container>
+      </section>
+    )
+  }
+</BaseLayout>

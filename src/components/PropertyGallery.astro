@@ -1,0 +1,55 @@
+---
+import PlaceholderImage from './PlaceholderImage.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  images: string[];
+  name: string;
+  seed: string;
+}
+const { images, name, seed } = Astro.props;
+const isReal = (s: string) => s.startsWith('/') || s.startsWith('http');
+// Ensure at least 4 tiles for a consistent grid.
+const tiles = Array.from({ length: Math.max(4, images.length) }).map(
+  (_, i) => images[i] ?? `placeholder-${i}`
+);
+const presetFor = (i: number) =>
+  (['room', 'room', 'campus', 'city', 'room'] as const)[i % 5];
+---
+<div class="grid gap-2 sm:grid-cols-4 sm:grid-rows-2">
+  <div
+    class="relative overflow-hidden rounded-2xl sm:col-span-2 sm:row-span-2"
+  >
+    <PlaceholderImage
+      preset="room"
+      seed={`${seed}-0`}
+      src={isReal(tiles[0]) ? tiles[0] : undefined}
+      alt={`${name} — main photo`}
+      loading="eager"
+      class="h-full min-h-[240px] w-full object-cover"
+    />
+    <span
+      class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-navy-950/85 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur"
+    >
+      <Icon name="video" size={13} /> Video tour available
+    </span>
+  </div>
+  {
+    tiles.slice(1, 5).map((tile, i) => (
+      <div class="relative hidden overflow-hidden rounded-xl sm:block">
+        <PlaceholderImage
+          preset={presetFor(i + 1)}
+          seed={`${seed}-${i + 1}`}
+          src={isReal(tile) ? tile : undefined}
+          alt={`${name} — photo ${i + 2}`}
+          class="h-full min-h-[118px] w-full object-cover"
+        />
+        {i === 3 && tiles.length > 5 && (
+          <span class="absolute inset-0 grid place-items-center bg-navy-950/55 text-sm font-semibold text-white">
+            +{tiles.length - 5} more
+          </span>
+        )}
+      </div>
+    ))
+  }
+</div>

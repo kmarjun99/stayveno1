@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import LeadForm from '../components/LeadForm.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../config';
+import { HOME_FAQS } from '../data/faqs';
+import { breadcrumbSchema } from '../lib/seo';
+
+const waHref = `https://wa.me/${site.whatsapp.number}?text=${encodeURIComponent(
+  "Hi Stay Veno, I'm looking for student accommodation. My university is "
+)}`;
+
+const channels = [
+  {
+    icon: 'whatsapp',
+    title: 'WhatsApp',
+    value: site.whatsapp.display,
+    href: waHref,
+    note: 'Fastest — a real advisor, any timezone',
+  },
+  {
+    icon: 'mail',
+    title: 'Email',
+    value: site.email,
+    href: `mailto:${site.email}`,
+    note: `Replies ${site.responseTime}`,
+  },
+  {
+    icon: 'phone',
+    title: 'Call',
+    value: site.phone,
+    href: site.phoneHref,
+    note: 'Mon–Sun, callback on request',
+  },
+];
+---
+<BaseLayout
+  title="Contact Stay Veno — Get a Free Student Accommodation Shortlist"
+  description="Tell us your university, move-in date and budget and get a free, verified student accommodation shortlist with video tours. UK, Germany, Ireland, Canada. Replies within 2 hours. No fee for students."
+  jsonLd={[
+    breadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Contact', path: '/contact' },
+    ]),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ContactPage',
+      name: 'Contact Stay Veno',
+      url: `${site.url}/contact`,
+    },
+  ]}
+>
+  <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Contact' }]} />
+
+  <section>
+    <Container class="py-14 sm:py-16">
+      <div class="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-start">
+        <div>
+          <SectionHeading
+            eyebrow="Get free help"
+            title="Tell us where you’re studying. We’ll send a shortlist that fits."
+          >
+            <p>
+              One short form. An advisor replies {site.responseTime} with three
+              to five verified homes — video tours included — matched to your
+              budget, room type and distance to campus. No account, no fee, no
+              obligation.
+            </p>
+          </SectionHeading>
+
+          <ul class="mt-6 space-y-3">
+            {
+              [
+                'We hold off on anything non-refundable until your place is confirmed',
+                'Ask us about guarantors, visa-refusal clauses and deposits',
+                'Already found a listing elsewhere? Send it and we’ll verify it',
+              ].map((p) => (
+                <li class="flex items-start gap-2.5 text-sm text-navy-700">
+                  <Icon name="check-circle" size={18} class="mt-0.5 shrink-0 text-brand-600" />
+                  <span>{p}</span>
+                </li>
+              ))
+            }
+          </ul>
+
+          <div class="mt-8 grid gap-3 sm:grid-cols-3">
+            {
+              channels.map((c) => (
+                <a
+                  href={c.href}
+                  rel="noopener"
+                  class="rounded-2xl border border-navy-900/10 bg-white p-4 transition-colors hover:border-brand-300"
+                >
+                  <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-700">
+                    <Icon name={c.icon} size={18} />
+                  </span>
+                  <p class="mt-3 text-sm font-semibold text-navy-900">{c.title}</p>
+                  <p class="text-sm text-navy-700">{c.value}</p>
+                  <p class="mt-1 text-xs text-navy-500">{c.note}</p>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-navy-900/10 bg-white p-6 shadow-sm sm:p-8">
+          <h2 class="text-lg font-bold text-navy-900">Request your free shortlist</h2>
+          <p class="mt-1 text-sm text-navy-600">Takes about a minute.</p>
+          <LeadForm source="contact-page" class="mt-5" />
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  <section class="bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.4fr]">
+        <SectionHeading eyebrow="Before you ask" title="Quick answers">
+          <p>
+            Full list on the <a href="/faq" class="font-semibold text-brand-700 underline">FAQ page</a>.
+          </p>
+        </SectionHeading>
+        <FaqAccordion items={HOME_FAQS} name="contact-faq" />
+      </div>
+    </Container>
+  </section>
+</BaseLayout>

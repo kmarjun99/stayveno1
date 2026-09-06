@@ -1,0 +1,28 @@
+---
+import { site } from '../config';
+import Icon from './Icon.astro';
+
+const waHref = `https://wa.me/${site.whatsapp.number}?text=${encodeURIComponent(
+  "Hi Stay Veno, I'm looking for student accommodation. My university is "
+)}`;
+---
+<div
+  class="fixed inset-x-0 bottom-0 z-50 border-t border-navy-900/10 bg-white/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md sm:hidden"
+>
+  <div class="flex gap-2">
+    <a
+      href="/contact"
+      class="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white"
+    >
+      <Icon name="sparkles" size={16} /> Get free help
+    </a>
+    <a
+      href={waHref}
+      rel="noopener"
+      aria-label={`Message Stay Veno on WhatsApp at ${site.whatsapp.display}`}
+      class="flex items-center justify-center gap-2 rounded-full border border-navy-200 bg-white px-4 py-3 text-sm font-semibold text-navy-900"
+    >
+      <Icon name="whatsapp" size={18} /> Chat
+    </a>
+  </div>
+</div>

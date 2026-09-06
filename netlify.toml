@@ -1,0 +1,16 @@
+# Netlify deploy config. (Cloudflare Pages ignores this — set the same values in
+# its dashboard: build command `npm run build`, output directory `dist`.)
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Send www.stayveno.com to the bare domain.
+[[redirects]]
+  from = "https://www.stayveno.com/*"
+  to = "https://stayveno.com/:splat"
+  status = 301
+  force = true

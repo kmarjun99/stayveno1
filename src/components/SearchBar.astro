@@ -1,0 +1,54 @@
+---
+import Icon from './Icon.astro';
+import { getCityOptions, getUniversityOptions } from '../lib/properties';
+
+interface Props {
+  size?: 'lg' | 'md';
+  class?: string;
+  autofocus?: boolean;
+}
+const { size = 'lg', class: className = '', autofocus = false } = Astro.props;
+
+const cities = await getCityOptions();
+const unis = await getUniversityOptions();
+const suggestions = [
+  ...['United Kingdom', 'Germany', 'Ireland', 'Canada'],
+  ...cities.map((c) => c.city),
+  ...unis,
+];
+
+const pad = size === 'lg' ? 'p-2' : 'p-1.5';
+const inputPad = size === 'lg' ? 'py-3.5 text-base' : 'py-2.5 text-sm';
+---
+<form
+  action="/properties"
+  method="get"
+  role="search"
+  class={`flex flex-col gap-2 rounded-2xl bg-white ${pad} shadow-xl shadow-navy-950/10 ring-1 ring-navy-900/10 sm:flex-row sm:items-center ${className}`}
+>
+  <label for="site-search" class="sr-only">
+    Search by city, university or country
+  </label>
+  <div class="flex flex-1 items-center gap-2 px-3">
+    <Icon name="search" size={20} class="shrink-0 text-navy-400" />
+    <input
+      id="site-search"
+      name="q"
+      type="search"
+      list="search-suggestions"
+      autofocus={autofocus}
+      autocomplete="off"
+      placeholder="City, university or country — e.g. Dublin, UCD"
+      class={`w-full min-w-0 border-0 bg-transparent ${inputPad} text-navy-900 placeholder:text-navy-400 focus:outline-none`}
+    />
+  </div>
+  <datalist id="search-suggestions">
+    {suggestions.map((s) => <option value={s} />)}
+  </datalist>
+  <button
+    type="submit"
+    class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+  >
+    <Icon name="search" size={16} /> Search homes
+  </button>
+</form>

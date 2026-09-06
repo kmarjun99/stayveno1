@@ -1,0 +1,168 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+import PlaceholderImage from '../components/PlaceholderImage.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../config';
+import { TEAM, VALUES } from '../data/team';
+import { breadcrumbSchema } from '../lib/seo';
+
+const stats = [
+  { value: site.stats.studentsHelped, label: 'students housed since 2021' },
+  { value: site.stats.cities, label: 'cities across 4 countries' },
+  { value: site.stats.partnerProperties, label: 'verified partner properties' },
+  { value: site.stats.averageRating + '/5', label: 'average student rating' },
+];
+---
+<BaseLayout
+  title="About Stay Veno — Why We Exist and How We Work"
+  description="Stay Veno was started by former international students who arrived with nowhere to live. We verify every listing, show you the room before you book, and are paid by providers so students pay nothing."
+  jsonLd={[
+    breadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'About', path: '/about' },
+    ]),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'AboutPage',
+      name: 'About Stay Veno',
+      url: `${site.url}/about`,
+      about: { '@type': 'Organization', name: site.name },
+    },
+  ]}
+>
+  <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'About' }]} />
+
+  <section class="relative isolate overflow-hidden bg-navy-950 text-white">
+    <PlaceholderImage
+      preset="students"
+      seed="about-hero"
+      alt="Students outside student accommodation"
+      loading="eager"
+      class="absolute inset-0 -z-10 h-full w-full object-cover opacity-25"
+    />
+    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-navy-950/80 to-navy-950"></div>
+    <Container class="py-16 sm:py-20">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-300">Our mission</p>
+      <h1 class="mt-3 max-w-3xl text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">
+        No international student should arrive with nowhere to live — or sign for
+        a room they’ve never really seen.
+      </h1>
+      <p class="mt-5 max-w-2xl text-lg text-white/80">
+        Stay Veno exists to make the housing part of studying abroad honest,
+        verified and free for the student.
+      </p>
+    </Container>
+  </section>
+
+  <section>
+    <Container class="grid gap-10 py-14 sm:py-16 lg:grid-cols-2">
+      <div class="rich max-w-none text-navy-700">
+        <h2>How it started</h2>
+        <p>
+          Our co-founder Priya moved from Chennai to Leeds for a master’s in 2019
+          with a tenancy that collapsed the week she landed. She spent her first
+          three weeks in a hostel, calling letting agents between lectures, wiring
+          a holding deposit to someone she could only hope was real.
+        </p>
+        <p>
+          She wasn’t unusual. Talk to enough international students and you hear
+          the same three stories: the deposit sent to a fake landlord, the “cosy
+          studio” that turned out to be a windowless box, and the hour-long
+          commute nobody mentioned. All three are avoidable with verification and
+          a proper look before you commit.
+        </p>
+        <h2>What we built</h2>
+        <p>
+          Stay Veno is a search and booking service for verified student housing
+          in the UK, Germany, Ireland and Canada. We check every listing against
+          a real provider contract, put a video tour on all of them, quote one
+          all-in price, and stay on WhatsApp with you from first message through
+          move-in day. Providers pay us a commission when you move in, so students
+          pay nothing.
+        </p>
+      </div>
+      <div class="grid h-max grid-cols-2 gap-4">
+        {
+          stats.map((s) => (
+            <div class="rounded-2xl border border-navy-900/10 bg-navy-50/60 p-5">
+              <p class="text-2xl font-extrabold text-navy-900">{s.value}</p>
+              <p class="mt-1 text-sm text-navy-600">{s.label}</p>
+            </div>
+          ))
+        }
+      </div>
+    </Container>
+  </section>
+
+  <section class="bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <SectionHeading eyebrow="What we stand by" title="Four rules we don’t break" />
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          VALUES.map((v) => (
+            <div class="rounded-2xl border border-navy-900/10 bg-white p-5">
+              <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-700">
+                <Icon name={v.icon} size={22} />
+              </span>
+              <h3 class="mt-4 font-semibold text-navy-900">{v.title}</h3>
+              <p class="mt-1.5 text-sm text-navy-600">{v.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </Container>
+  </section>
+
+  <section>
+    <Container class="py-14 sm:py-16">
+      <SectionHeading eyebrow="The team" title="People who’ve done this move themselves" />
+      <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          TEAM.map((m) => (
+            <div class="flex flex-col overflow-hidden rounded-2xl border border-navy-900/10 bg-white">
+              <div class="aspect-square">
+                <PlaceholderImage
+                  preset="abstract"
+                  seed={m.seed}
+                  alt={`${m.name}, ${m.role}`}
+                  class="h-full w-full object-cover"
+                />
+              </div>
+              <div class="p-4">
+                <p class="font-semibold text-navy-900">{m.name}</p>
+                <p class="text-xs font-medium text-brand-700">{m.role}</p>
+                <p class="mt-2 text-sm text-navy-600">{m.bio}</p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </Container>
+  </section>
+
+  <section class="bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <div class="mx-auto max-w-3xl rounded-2xl border border-navy-900/10 bg-white p-6 sm:p-8">
+        <h2 class="flex items-center gap-2 text-lg font-bold text-navy-900">
+          <Icon name="wallet" size={18} class="text-brand-700" /> How we make money — plainly
+        </h2>
+        <p class="mt-3 text-sm leading-relaxed text-navy-700">
+          When you move into a home you found through Stay Veno, the accommodation
+          provider pays us a commission. That’s our only revenue from a student
+          booking. We don’t charge you a fee, we don’t sell your data, and we
+          don’t take payment for ranking one provider above another. If a provider
+          pressures us to push their rooms or misrepresents a listing, we stop
+          working with them. Because we’re only paid when you actually move in and
+          stay, our incentive is to put you somewhere that fits — not just
+          anywhere.
+        </p>
+      </div>
+    </Container>
+  </section>
+
+  <CtaBanner />
+</BaseLayout>

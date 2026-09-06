@@ -1,0 +1,110 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/sora';
+import '../styles/global.css';
+import { site } from '../config';
+import { organizationSchema, websiteSchema } from '../lib/seo';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import StickyCta from '../components/StickyCta.astro';
+import WhatsappWidget from '../components/WhatsappWidget.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  canonicalPath?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  image = site.ogImage,
+  canonicalPath,
+  type = 'website',
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const fullTitle = title.includes(site.name) ? title : `${title} | ${site.name}`;
+const path = canonicalPath ?? Astro.url.pathname;
+const canonical = new URL(path === '/' ? '/' : path.replace(/\/$/, ''), site.url).href;
+const ogImage = new URL(image, site.url).href;
+
+const baseSchemas = [organizationSchema(), websiteSchema()];
+const pageSchemas = jsonLd
+  ? Array.isArray(jsonLd)
+    ? jsonLd
+    : [jsonLd]
+  : [];
+const schemas = [...baseSchemas, ...pageSchemas];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="mask-icon" href="/favicon.svg" color="#0884a9" />
+    <meta name="theme-color" content="#0884a9" />
+    <meta name="color-scheme" content="light" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta
+      name="robots"
+      content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}
+    />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="en_GB" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {
+      schemas.map((schema) => (
+        <script
+          is:inline
+          type="application/ld+json"
+          set:html={JSON.stringify(schema)}
+        />
+      ))
+    }
+  </head>
+  <body class="min-h-screen bg-white text-navy-900 antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-navy-900 focus:px-4 focus:py-2 focus:text-white"
+    >
+      Skip to content
+    </a>
+
+    <Header />
+
+    <main id="main" class="pb-24 sm:pb-0">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <StickyCta />
+    <WhatsappWidget />
+  </body>
+</html>

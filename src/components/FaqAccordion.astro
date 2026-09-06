@@ -1,0 +1,40 @@
+---
+import Icon from './Icon.astro';
+import type { Faq } from '../data/faqs';
+
+interface Props {
+  items: Faq[];
+  heading?: string;
+  name?: string;
+  class?: string;
+}
+const { items, heading, name, class: className = '' } = Astro.props;
+---
+<div class={className}>
+  {
+    heading && (
+      <h3 class="mb-3 text-sm font-bold uppercase tracking-[0.14em] text-brand-700">
+        {heading}
+      </h3>
+    )
+  }
+  <div class="divide-y divide-navy-900/10 overflow-hidden rounded-2xl border border-navy-900/10 bg-white">
+    {
+      items.map((item) => (
+        <details class="group" name={name}>
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-left font-semibold text-navy-900 [&::-webkit-details-marker]:hidden">
+            <span>{item.q}</span>
+            <Icon
+              name="chevron"
+              size={20}
+              class="shrink-0 text-navy-400 transition-transform duration-200 group-open:-rotate-180"
+            />
+          </summary>
+          <div class="px-5 pb-5 pt-0 text-sm leading-relaxed text-navy-600">
+            {item.a}
+          </div>
+        </details>
+      ))
+    }
+  </div>
+</div>

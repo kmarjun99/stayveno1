@@ -1,0 +1,135 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ *
+ * Stay Veno design tokens
+ * ------------------------------------------------------------------ */
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Sora Variable', 'Inter Variable', ui-sans-serif, system-ui,
+    sans-serif;
+
+  /* Brand: blue / teal */
+  --color-brand-50: #ecfdff;
+  --color-brand-100: #cff7fd;
+  --color-brand-200: #a4ecf9;
+  --color-brand-300: #66dcf2;
+  --color-brand-400: #22c2e3;
+  --color-brand-500: #08a5c9;
+  --color-brand-600: #0884a9;
+  --color-brand-700: #0d6a89;
+  --color-brand-800: #135770;
+  --color-brand-900: #14495f;
+  --color-brand-950: #062f40;
+
+  /* Deep navy — headings & dark sections */
+  --color-navy-50: #f2f7f9;
+  --color-navy-100: #dbe8ed;
+  --color-navy-200: #bad3dc;
+  --color-navy-300: #8db3c2;
+  --color-navy-400: #5c8ba1;
+  --color-navy-500: #3f7089;
+  --color-navy-600: #345a71;
+  --color-navy-700: #2e4a5d;
+  --color-navy-800: #2b3f4e;
+  --color-navy-900: #102a39;
+  --color-navy-950: #081b26;
+
+  /* Warm accent — used sparingly for "human" warmth */
+  --color-sun-400: #ffb44d;
+  --color-sun-500: #f5a623;
+
+  --radius-xl: 0.9rem;
+  --radius-2xl: 1.25rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Base
+ * ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-navy-900);
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Focus visibility for keyboard users */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Utility: subtle section separator */
+.hairline {
+  border-color: color-mix(in srgb, var(--color-navy-900) 10%, transparent);
+}
+
+/* Prose tweaks for content bodies */
+.rich :where(p, ul, ol) {
+  margin-block: 0.85em;
+  line-height: 1.7;
+}
+.rich :where(h2) {
+  font-size: 1.35rem;
+  margin-top: 1.6em;
+  margin-bottom: 0.4em;
+  color: var(--color-navy-900);
+}
+.rich :where(h3) {
+  font-size: 1.1rem;
+  margin-top: 1.3em;
+  margin-bottom: 0.3em;
+  color: var(--color-navy-900);
+}
+.rich :where(ul) {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.rich :where(a) {
+  color: var(--color-brand-700);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Hide content visually but keep for screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

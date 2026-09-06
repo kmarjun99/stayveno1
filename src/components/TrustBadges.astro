@@ -1,0 +1,58 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  variant?: 'grid' | 'strip';
+  class?: string;
+}
+const { variant = 'grid', class: className = '' } = Astro.props;
+
+const badges = [
+  {
+    icon: 'shield',
+    title: 'Verified listings only',
+    body: 'Every property is checked by our team against a real provider contract before it reaches you.',
+  },
+  {
+    icon: 'tag',
+    title: 'Transparent pricing',
+    body: 'The weekly price you see is all-in. No surprise agency fee at the contract stage.',
+  },
+  {
+    icon: 'video',
+    title: 'See before you book',
+    body: 'Virtual tour, video walkthrough or in-person viewing before you commit. Never book blind.',
+  },
+  {
+    icon: 'clock',
+    title: '24/7 student support',
+    body: 'Whatever your timezone, a real person answers on WhatsApp, email or call.',
+  },
+];
+---
+{
+  variant === 'strip' ? (
+    <ul
+      class={`flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-navy-600 ${className}`}
+    >
+      {badges.map((b) => (
+        <li class="inline-flex items-center gap-2">
+          <Icon name={b.icon} size={16} class="text-brand-600" />
+          <span class="font-medium text-navy-800">{b.title}</span>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <ul class={`grid gap-4 sm:grid-cols-2 lg:grid-cols-4 ${className}`}>
+      {badges.map((b) => (
+        <li class="rounded-2xl border border-navy-900/10 bg-white p-5 shadow-sm">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <Icon name={b.icon} size={22} />
+          </span>
+          <h3 class="mt-4 text-base font-semibold text-navy-900">{b.title}</h3>
+          <p class="mt-1.5 text-sm leading-relaxed text-navy-600">{b.body}</p>
+        </li>
+      ))}
+    </ul>
+  )
+}

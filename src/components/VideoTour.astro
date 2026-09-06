@@ -1,0 +1,79 @@
+---
+import PlaceholderImage from './PlaceholderImage.astro';
+import Icon from './Icon.astro';
+import { toEmbedUrl } from '../lib/format';
+
+interface Props {
+  url: string;
+  title: string;
+  seed?: string;
+  poster?: string;
+  note?: string;
+  class?: string;
+}
+const {
+  url,
+  title,
+  seed = 'tour',
+  poster,
+  note = 'Sample walkthrough — every live listing carries a tour of the actual room type.',
+  class: className = '',
+} = Astro.props;
+const embed = toEmbedUrl(url);
+---
+<figure class={className}>
+  <div
+    class="video-tour group relative aspect-video overflow-hidden rounded-2xl border border-navy-900/10 bg-navy-950"
+    data-embed={embed}
+    data-title={title}
+  >
+    <PlaceholderImage
+      preset="room"
+      seed={seed}
+      src={poster}
+      alt={`Video tour poster for ${title}`}
+      class="h-full w-full object-cover opacity-80"
+    />
+    <button
+      type="button"
+      class="video-tour-play absolute inset-0 grid place-items-center bg-navy-950/25 transition-colors hover:bg-navy-950/10"
+    >
+      <span class="sr-only">Play video tour of {title}</span>
+      <span
+        class="grid h-16 w-16 place-items-center rounded-full bg-white text-brand-700 shadow-xl transition-transform group-hover:scale-105"
+      >
+        <Icon name="play" size={26} />
+      </span>
+      <span
+        class="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full bg-navy-950/80 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur"
+      >
+        <Icon name="video" size={13} /> Watch the video tour
+      </span>
+    </button>
+  </div>
+  {
+    note && (
+      <figcaption class="mt-2 text-xs text-navy-500">{note}</figcaption>
+    )
+  }
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.video-tour').forEach((box) => {
+    const btn = box.querySelector<HTMLButtonElement>('.video-tour-play');
+    btn?.addEventListener('click', () => {
+      const src = box.dataset.embed;
+      const title = box.dataset.title ?? 'Video tour';
+      if (!src) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = src.includes('?') ? `${src}&autoplay=1` : `${src}?autoplay=1`;
+      iframe.title = `Video tour — ${title}`;
+      iframe.loading = 'lazy';
+      iframe.allow =
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.className = 'absolute inset-0 h-full w-full';
+      box.replaceChildren(iframe);
+    });
+  });
+</script>

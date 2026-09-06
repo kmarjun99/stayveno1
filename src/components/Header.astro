@@ -1,0 +1,104 @@
+---
+import { NAV_LINKS } from '../config';
+import Container from './Container.astro';
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? pathname === '/' : pathname.startsWith(href);
+---
+<header
+  class="sticky top-0 z-50 border-b border-navy-900/10 bg-white/90 backdrop-blur-md"
+>
+  <Container class="flex h-16 items-center justify-between gap-4">
+    <Logo />
+
+    <nav class="hidden lg:flex lg:items-center lg:gap-1" aria-label="Primary">
+      {
+        NAV_LINKS.map((link) => (
+          <a
+            href={link.href}
+            aria-current={isActive(link.href) ? 'page' : undefined}
+            class:list={[
+              'rounded-full px-3.5 py-2 text-sm font-medium transition-colors',
+              isActive(link.href)
+                ? 'bg-brand-50 text-brand-800'
+                : 'text-navy-700 hover:bg-navy-50 hover:text-navy-900',
+            ]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <a
+        href="/contact"
+        class="hidden rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 sm:inline-flex"
+      >
+        Get free help
+      </a>
+      <button
+        type="button"
+        id="nav-toggle"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        class="grid h-10 w-10 place-items-center rounded-lg text-navy-800 hover:bg-navy-50 lg:hidden"
+      >
+        <span class="sr-only">Open menu</span>
+        <Icon name="menu" size={22} />
+      </button>
+    </div>
+  </Container>
+
+  <!-- Mobile nav panel -->
+  <div
+    id="mobile-nav"
+    hidden
+    class="border-t border-navy-900/10 bg-white lg:hidden"
+  >
+    <Container class="flex flex-col py-3">
+      {
+        NAV_LINKS.map((link) => (
+          <a
+            href={link.href}
+            aria-current={isActive(link.href) ? 'page' : undefined}
+            class:list={[
+              'rounded-lg px-3 py-3 text-base font-medium',
+              isActive(link.href)
+                ? 'bg-brand-50 text-brand-800'
+                : 'text-navy-800 hover:bg-navy-50',
+            ]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <a
+        href="/contact"
+        class="mt-2 rounded-full bg-brand-600 px-4 py-3 text-center text-base font-semibold text-white"
+      >
+        Get free help
+      </a>
+    </Container>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const panel = document.getElementById('mobile-nav');
+  if (toggle && panel) {
+    toggle.addEventListener('click', () => {
+      const open = panel.hasAttribute('hidden');
+      if (open) {
+        panel.removeAttribute('hidden');
+        toggle.setAttribute('aria-expanded', 'true');
+      } else {
+        panel.setAttribute('hidden', '');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+</script>

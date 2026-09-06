@@ -1,0 +1,339 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  cities: { city: string; country: string; countrySlug: string }[];
+  roomTypes: string[];
+  priceBounds: { min: number; max: number };
+}
+const { cities, roomTypes, priceBounds } = Astro.props;
+
+const countries = [
+  { slug: 'uk', label: 'United Kingdom' },
+  { slug: 'germany', label: 'Germany' },
+  { slug: 'ireland', label: 'Ireland' },
+  { slug: 'canada', label: 'Canada' },
+];
+const distances = [
+  { v: '5', label: 'Up to 5 min' },
+  { v: '10', label: 'Up to 10 min' },
+  { v: '15', label: 'Up to 15 min' },
+  { v: '20', label: 'Up to 20 min' },
+  { v: '30', label: 'Up to 30 min' },
+];
+---
+<div class="lg:sticky lg:top-20">
+  <div class="mb-3 flex items-center justify-between lg:hidden">
+    <button
+      type="button"
+      data-filter-toggle
+      aria-expanded="false"
+      class="inline-flex items-center gap-2 rounded-full border border-navy-200 bg-white px-4 py-2 text-sm font-semibold text-navy-900"
+    >
+      <Icon name="list" size={16} /> Filters
+      <span
+        data-active-count
+        class="ml-1 hidden rounded-full bg-brand-600 px-1.5 text-xs text-white"
+      ></span>
+    </button>
+  </div>
+
+  <form
+    id="filters"
+    class="hidden space-y-5 rounded-2xl border border-navy-900/10 bg-white p-5 lg:block"
+  >
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-bold uppercase tracking-[0.14em] text-brand-700">
+        Filter homes
+      </h2>
+      <button
+        type="button"
+        data-clear
+        class="text-xs font-semibold text-navy-500 underline hover:text-brand-700"
+      >
+        Clear all
+      </button>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label for="f-q" class="text-sm font-medium text-navy-800">Keyword</label>
+      <input
+        id="f-q"
+        name="q"
+        type="search"
+        placeholder="City, university, building…"
+        class="rounded-xl border border-navy-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label for="f-country" class="text-sm font-medium text-navy-800">Country</label>
+      <select
+        id="f-country"
+        name="country"
+        class="rounded-xl border border-navy-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+      >
+        <option value="">Any country</option>
+        {countries.map((c) => <option value={c.slug}>{c.label}</option>)}
+      </select>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <label for="f-city" class="text-sm font-medium text-navy-800">City</label>
+      <select
+        id="f-city"
+        name="city"
+        class="rounded-xl border border-navy-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+      >
+        <option value="">Any city</option>
+        {cities.map((c) => <option value={c.city}>{c.city}</option>)}
+      </select>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <label for="f-price" class="text-sm font-medium text-navy-800">
+          Max price / week
+        </label>
+        <output id="f-price-out" class="text-sm font-semibold text-brand-700">
+          Any
+        </output>
+      </div>
+      <input
+        id="f-price"
+        name="maxPrice"
+        type="range"
+        min={priceBounds.min}
+        max={priceBounds.max}
+        step="10"
+        value={priceBounds.max}
+        class="accent-brand-600"
+      />
+      <div class="flex justify-between text-xs text-navy-400">
+        <span>{priceBounds.min}</span><span>{priceBounds.max}+</span>
+      </div>
+    </div>
+
+    <fieldset class="flex flex-col gap-2">
+      <legend class="text-sm font-medium text-navy-800">Room type</legend>
+      {
+        roomTypes.map((rt) => (
+          <label class="flex items-center gap-2 text-sm text-navy-700">
+            <input
+              type="checkbox"
+              name="type"
+              value={rt}
+              class="h-4 w-4 rounded border-navy-300 text-brand-600 focus:ring-brand-500"
+            />
+            {rt}
+          </label>
+        ))
+      }
+    </fieldset>
+
+    <div class="flex flex-col gap-1.5">
+      <label for="f-dist" class="text-sm font-medium text-navy-800">
+        Distance to campus
+      </label>
+      <select
+        id="f-dist"
+        name="maxDist"
+        class="rounded-xl border border-navy-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+      >
+        <option value="">Any distance</option>
+        {distances.map((d) => <option value={d.v}>{d.label}</option>)}
+      </select>
+    </div>
+
+    <div class="flex flex-col gap-1.5 border-t border-navy-900/10 pt-4">
+      <label for="f-sort" class="text-sm font-medium text-navy-800">Sort by</label>
+      <select
+        id="f-sort"
+        name="sort"
+        class="rounded-xl border border-navy-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
+      >
+        <option value="featured">Most popular</option>
+        <option value="price-asc">Price: low to high</option>
+        <option value="price-desc">Price: high to low</option>
+        <option value="distance-asc">Closest to campus</option>
+      </select>
+    </div>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('filters') as HTMLFormElement | null;
+  const grid = document.getElementById('property-grid');
+  const countEl = document.querySelector('[data-results-count]');
+  const noResults = document.getElementById('no-results');
+  const priceOut = document.getElementById('f-price-out');
+  const activeCount = document.querySelector('[data-active-count]');
+  const toggle = document.querySelector('[data-filter-toggle]');
+  if (!form || !grid) {
+    // nothing to wire
+  } else {
+    const priceInput = form.querySelector<HTMLInputElement>('#f-price');
+    const priceMax = priceInput ? Number(priceInput.max) : 0;
+
+    const readState = () => {
+      const data = new FormData(form);
+      return {
+        q: String(data.get('q') ?? '').trim().toLowerCase(),
+        country: String(data.get('country') ?? ''),
+        city: String(data.get('city') ?? ''),
+        maxPrice: Number(data.get('maxPrice') ?? priceMax),
+        types: data.getAll('type').map(String),
+        maxDist: Number(data.get('maxDist') ?? 0),
+        sort: String(data.get('sort') ?? 'featured'),
+      };
+    };
+
+    const apply = (pushUrl = true) => {
+      const s = readState();
+      const cards = Array.from(
+        grid.querySelectorAll<HTMLElement>('.property-card')
+      );
+      let visible = 0;
+
+      for (const card of cards) {
+        const d = card.dataset;
+        const price = Number(d.price);
+        const dist = Number(d.distance);
+        let ok = true;
+        if (s.q) {
+          const hay = `${d.name} ${d.city} ${d.uni} ${d.country}`.toLowerCase();
+          if (!hay.includes(s.q)) ok = false;
+        }
+        if (ok && s.country && d.country !== s.country) ok = false;
+        if (ok && s.city && d.city !== s.city) ok = false;
+        if (ok && s.maxPrice < priceMax && price > s.maxPrice) ok = false;
+        if (ok && s.types.length && !s.types.includes(d.roomtype ?? '')) ok = false;
+        if (ok && s.maxDist && dist > s.maxDist) ok = false;
+        card.hidden = !ok;
+        if (ok) visible++;
+      }
+
+      // sort visible cards
+      const sorted = cards
+        .filter((c) => !c.hidden)
+        .sort((a, b) => {
+          const pa = Number(a.dataset.price);
+          const pb = Number(b.dataset.price);
+          const da = Number(a.dataset.distance);
+          const db = Number(b.dataset.distance);
+          const fa = a.dataset.featured === 'true' ? 0 : 1;
+          const fb = b.dataset.featured === 'true' ? 0 : 1;
+          switch (s.sort) {
+            case 'price-asc':
+              return pa - pb;
+            case 'price-desc':
+              return pb - pa;
+            case 'distance-asc':
+              return da - db;
+            default:
+              return fa - fb || pa - pb;
+          }
+        });
+      sorted.forEach((c) => grid.appendChild(c));
+
+      if (countEl) countEl.textContent = String(visible);
+      if (noResults) noResults.hidden = visible !== 0;
+
+      if (priceOut) {
+        priceOut.textContent =
+          s.maxPrice >= priceMax ? 'Any' : `${s.maxPrice}`;
+      }
+
+      const activeN =
+        (s.q ? 1 : 0) +
+        (s.country ? 1 : 0) +
+        (s.city ? 1 : 0) +
+        (s.maxPrice < priceMax ? 1 : 0) +
+        s.types.length +
+        (s.maxDist ? 1 : 0);
+      if (activeCount) {
+        activeCount.textContent = String(activeN);
+        (activeCount as HTMLElement).hidden = activeN === 0;
+        activeCount.classList.toggle('hidden', activeN === 0);
+      }
+
+      if (pushUrl) {
+        const params = new URLSearchParams();
+        if (s.q) params.set('q', s.q);
+        if (s.country) params.set('country', s.country);
+        if (s.city) params.set('city', s.city);
+        if (s.maxPrice < priceMax) params.set('maxPrice', String(s.maxPrice));
+        if (s.types.length) params.set('type', s.types.join(','));
+        if (s.maxDist) params.set('maxDist', String(s.maxDist));
+        if (s.sort !== 'featured') params.set('sort', s.sort);
+        const qs = params.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+      }
+    };
+
+    const hydrateFromUrl = () => {
+      const p = new URLSearchParams(location.search);
+      const set = (sel: string, val: string | null) => {
+        if (val == null) return;
+        const el = form.querySelector<HTMLInputElement | HTMLSelectElement>(sel);
+        if (el) el.value = val;
+      };
+      set('#f-q', p.get('q'));
+      set('#f-country', p.get('country'));
+      set('#f-city', p.get('city'));
+      set('#f-dist', p.get('maxDist'));
+      set('#f-sort', p.get('sort'));
+      if (p.get('maxPrice') && priceInput) priceInput.value = p.get('maxPrice')!;
+      const types = (p.get('type') ?? '').split(',').filter(Boolean);
+      form
+        .querySelectorAll<HTMLInputElement>('input[name="type"]')
+        .forEach((cb) => {
+          cb.checked = types.includes(cb.value);
+        });
+      // free-text q from the homepage search: try to map to a city/country select
+      const rawQ = p.get('q');
+      if (rawQ) {
+        const lc = rawQ.toLowerCase();
+        const cityOpt = Array.from(
+          form.querySelectorAll<HTMLOptionElement>('#f-city option')
+        ).find((o) => o.value.toLowerCase() === lc);
+        if (cityOpt) {
+          (form.querySelector('#f-city') as HTMLSelectElement).value =
+            cityOpt.value;
+          (form.querySelector('#f-q') as HTMLInputElement).value = '';
+        }
+        const map: Record<string, string> = {
+          'united kingdom': 'uk',
+          uk: 'uk',
+          england: 'uk',
+          germany: 'germany',
+          deutschland: 'germany',
+          ireland: 'ireland',
+          canada: 'canada',
+        };
+        if (map[lc]) {
+          (form.querySelector('#f-country') as HTMLSelectElement).value = map[lc];
+          (form.querySelector('#f-q') as HTMLInputElement).value = '';
+        }
+      }
+    };
+
+    form.addEventListener('input', () => apply(true));
+    form.addEventListener('change', () => apply(true));
+    form.addEventListener('submit', (e) => e.preventDefault());
+
+    form.querySelector('[data-clear]')?.addEventListener('click', () => {
+      form.reset();
+      if (priceInput) priceInput.value = priceInput.max;
+      apply(true);
+    });
+
+    toggle?.addEventListener('click', () => {
+      const isHidden = form.classList.toggle('hidden');
+      toggle.setAttribute('aria-expanded', String(!isHidden));
+    });
+
+    hydrateFromUrl();
+    apply(false);
+  }
+</script>

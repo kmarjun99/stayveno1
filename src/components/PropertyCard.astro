@@ -1,0 +1,108 @@
+---
+import type { Property } from '../lib/properties';
+import PlaceholderImage from './PlaceholderImage.astro';
+import Icon from './Icon.astro';
+import { pricePerWeek, distanceLabel } from '../lib/format';
+import { resolvePropertyImages } from '../lib/roomPhotos';
+
+interface Props {
+  property: Property;
+  class?: string;
+}
+const { property, class: className = '' } = Astro.props;
+const d = property.data;
+const href = `/properties/${property.id}`;
+const uniList = [d.nearestUniversity, ...d.otherUniversities].join(' · ');
+const cardPhoto = resolvePropertyImages(property)[0];
+---
+<article
+  class:list={[
+    'property-card group flex flex-col overflow-hidden rounded-2xl border border-navy-900/10 bg-white shadow-sm transition-shadow hover:shadow-lg',
+    className,
+  ]}
+  data-city={d.city}
+  data-country={d.countrySlug}
+  data-price={d.pricePerWeek}
+  data-roomtype={d.roomType}
+  data-distance={d.distanceToCampusMins}
+  data-featured={d.featured ? 'true' : 'false'}
+  data-name={d.name.toLowerCase()}
+  data-uni={uniList.toLowerCase()}
+>
+  <a href={href} class="relative block aspect-[4/3] overflow-hidden">
+    <PlaceholderImage
+      preset="room"
+      seed={property.id}
+      src={cardPhoto}
+      alt={`${d.name} — ${d.roomType} in ${d.city}`}
+      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+    />
+    <span
+      class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-navy-950/85 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur"
+    >
+      <Icon name="video" size={13} /> Video tour
+    </span>
+    {
+      d.featured && (
+        <span class="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-sun-400 px-2.5 py-1 text-xs font-bold text-navy-950">
+          Popular
+        </span>
+      )
+    }
+  </a>
+
+  <div class="flex flex-1 flex-col p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <h3 class="truncate font-semibold text-navy-900">
+          <a href={href} class="hover:text-brand-700">{d.name}</a>
+        </h3>
+        <p class="mt-0.5 flex items-center gap-1 text-sm text-navy-500">
+          <Icon name="map" size={13} class="shrink-0" />
+          <span class="truncate">
+            {d.neighbourhood ? `${d.neighbourhood}, ` : ''}{d.city}
+          </span>
+        </p>
+      </div>
+      {
+        d.rating && (
+          <span class="inline-flex shrink-0 items-center gap-1 rounded-lg bg-navy-50 px-2 py-1 text-xs font-semibold text-navy-800">
+            <Icon name="star" size={12} class="text-sun-500" />
+            {d.rating.toFixed(1)}
+          </span>
+        )
+      }
+    </div>
+
+    <div class="mt-3 flex flex-wrap gap-1.5">
+      <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-800">
+        {d.roomType}
+      </span>
+      <span class="inline-flex items-center gap-1 rounded-full bg-navy-50 px-2.5 py-1 text-xs font-medium text-navy-700">
+        <Icon name="map" size={12} />
+        {distanceLabel(d.distanceToCampusMins, d.distanceMode)}
+      </span>
+      {
+        d.billsIncluded && (
+          <span class="inline-flex items-center gap-1 rounded-full bg-navy-50 px-2.5 py-1 text-xs font-medium text-navy-700">
+            <Icon name="check" size={12} class="text-brand-600" /> Bills included
+          </span>
+        )
+      }
+    </div>
+
+    <p class="mt-2 line-clamp-1 text-xs text-navy-500">Near {uniList}</p>
+
+    <div class="mt-4 flex items-end justify-between border-t border-navy-900/10 pt-3">
+      <p class="text-navy-900">
+        <span class="text-lg font-bold">{pricePerWeek(d.pricePerWeek, d.currency)}</span>
+        <span class="text-sm text-navy-500"> / week</span>
+      </p>
+      <span
+        class="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 group-hover:gap-2"
+      >
+        View home <Icon name="arrow-right" size={15} />
+      </span>
+    </div>
+  </div>
+</article>

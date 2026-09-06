@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import HowItWorks from '../components/HowItWorks.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+import Icon from '../components/Icon.astro';
+import { STEPS } from '../data/steps';
+import { ALL_FAQS } from '../data/faqs';
+import { breadcrumbSchema, howToSchema, faqSchema } from '../lib/seo';
+
+const howItWorksFaqs = [ALL_FAQS[0], ALL_FAQS[4], ALL_FAQS[7], ALL_FAQS[10]];
+
+const comparison = [
+  { point: 'Every listing verified against a real contract', us: true, alone: false },
+  { point: 'Video tour or live walkthrough before you commit', us: true, alone: false },
+  { point: 'All-in weekly price, no surprise agency fee', us: true, alone: false },
+  { point: 'Contract explained clause by clause', us: true, alone: false },
+  { point: 'Guarantor & visa-refusal options filtered for you', us: true, alone: false },
+  { point: 'One person on WhatsApp through move-in day', us: true, alone: false },
+  { point: 'Costs you anything', us: false, alone: false },
+];
+---
+<BaseLayout
+  title="How Stay Veno Works — Search, Shortlist, View, Book"
+  description="How Stay Veno helps international students find verified accommodation: search by university, get a shortlist, see the room on a video or virtual tour, then book with contract support. Free for students."
+  jsonLd={[
+    breadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'How it works', path: '/how-it-works' },
+    ]),
+    howToSchema(
+      'How to book verified student accommodation with Stay Veno',
+      STEPS.map((s) => ({ name: s.title, text: s.detail }))
+    ),
+    faqSchema(howItWorksFaqs),
+  ]}
+>
+  <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'How it works' }]} />
+
+  <section>
+    <Container class="py-14 sm:py-16">
+      <SectionHeading
+        eyebrow="How it works"
+        title="Search, shortlist, see it, book it — in about two to four days"
+      >
+        <p>
+          You never pay Stay Veno, you never commit to a room you haven’t seen,
+          and there’s a real person with you the whole way.
+        </p>
+      </SectionHeading>
+      <HowItWorks variant="full" class="mt-10" />
+    </Container>
+  </section>
+
+  <section class="bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+        <div>
+          <SectionHeading eyebrow="What it costs" title="Nothing. Here’s why that works.">
+            <p>
+              Accommodation providers pay us a commission when a student moves in
+              and stays — the same model as a hotel booking site. That means our
+              service is free for you, and we only do well when you end up
+              somewhere you’re happy to stay.
+            </p>
+          </SectionHeading>
+          <ul class="mt-6 space-y-3">
+            {
+              [
+                'No search fee, no booking fee, no “admin” fee',
+                'We show options from many providers, not just the ones paying most',
+                'We tell you the downsides of each place, in writing',
+                'Walk away at any point, no cost',
+              ].map((p) => (
+                <li class="flex items-start gap-2.5 text-sm text-navy-700">
+                  <Icon name="check-circle" size={18} class="mt-0.5 shrink-0 text-brand-600" />
+                  <span>{p}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div class="overflow-hidden rounded-2xl border border-navy-900/10 bg-white">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-navy-900/10 bg-navy-50/60 text-xs uppercase tracking-wide text-navy-500">
+                <th class="px-4 py-3 font-semibold">&nbsp;</th>
+                <th class="px-3 py-3 text-center font-semibold text-brand-800">With Stay Veno</th>
+                <th class="px-3 py-3 text-center font-semibold">On your own</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                comparison.map((row) => (
+                  <tr class="border-b border-navy-900/10 last:border-0">
+                    <td class="px-4 py-3 text-navy-700">{row.point}</td>
+                    <td class="px-3 py-3 text-center">
+                      <Icon
+                        name={row.us ? 'check-circle' : 'x'}
+                        size={17}
+                        class={`mx-auto ${row.us ? 'text-brand-600' : 'text-navy-300'}`}
+                      />
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <Icon
+                        name={row.alone ? 'check-circle' : 'x'}
+                        size={17}
+                        class={`mx-auto ${row.alone ? 'text-brand-600' : 'text-navy-300'}`}
+                      />
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  <section>
+    <Container class="py-14 sm:py-16">
+      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.4fr]">
+        <SectionHeading eyebrow="Good to know" title="Questions about the process" />
+        <FaqAccordion items={howItWorksFaqs} name="hiw-faq" />
+      </div>
+    </Container>
+  </section>
+
+  <CtaBanner />
+</BaseLayout>

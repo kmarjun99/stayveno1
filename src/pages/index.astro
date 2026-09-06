@@ -1,0 +1,246 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import SearchBar from '../components/SearchBar.astro';
+import TrustBadges from '../components/TrustBadges.astro';
+import DestinationCard from '../components/DestinationCard.astro';
+import PropertyCard from '../components/PropertyCard.astro';
+import HowItWorks from '../components/HowItWorks.astro';
+import Testimonials from '../components/Testimonials.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+import NewsletterSignup from '../components/NewsletterSignup.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+import LeadForm from '../components/LeadForm.astro';
+import PlaceholderImage from '../components/PlaceholderImage.astro';
+import Icon from '../components/Icon.astro';
+import Button from '../components/Button.astro';
+import { site } from '../config';
+import { getDestinations, getFeaturedProperties } from '../lib/properties';
+import { HOME_FAQS } from '../data/faqs';
+import { WORRIES } from '../data/reassurance';
+import { faqSchema } from '../lib/seo';
+
+const destinations = await getDestinations();
+const featured = await getFeaturedProperties(6);
+
+const description =
+  'Stay Veno finds international students verified accommodation near their university, with a video walkthrough or virtual tour before you book. UK, Germany, Ireland and Canada. Free for students.';
+---
+<BaseLayout
+  title="Stay Veno — Verified Student Accommodation, Seen Before You Book"
+  description={description}
+  jsonLd={faqSchema(HOME_FAQS)}
+>
+  <!-- Hero -->
+  <section class="relative isolate overflow-hidden bg-navy-950 text-white">
+    <PlaceholderImage
+      preset="students"
+      seed="hero-home"
+      src={site.homeHeroImage}
+      alt={site.homeHeroImageAlt}
+      loading="eager"
+      class="absolute inset-0 -z-10 h-full w-full object-cover"
+    />
+    <div
+      class="absolute inset-0 -z-10 bg-gradient-to-t from-navy-950/95 via-navy-950/82 to-navy-950/68 lg:bg-gradient-to-r lg:from-navy-950/95 lg:via-navy-950/74 lg:to-navy-950/32"
+    >
+    </div>
+    <Container class="py-16 sm:py-20 lg:py-24">
+      <p class="text-xs font-semibold uppercase tracking-[0.22em] text-brand-300">
+        UK · Germany · Ireland · Canada
+      </p>
+      <h1
+        class="mt-4 max-w-3xl text-4xl font-extrabold leading-[1.08] sm:text-5xl lg:text-6xl"
+      >
+        Don’t arrive with nowhere to live. And never book blind.
+      </h1>
+      <p class="mt-5 max-w-2xl text-lg text-white/80">
+        Stay Veno finds you verified student accommodation near your university,
+        shows you a video walkthrough or virtual tour first, and handles the
+        booking. Free for students.
+      </p>
+
+      <SearchBar class="mt-8 max-w-2xl" />
+
+      <ul
+        class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/80"
+      >
+        <li class="inline-flex items-center gap-1.5">
+          <Icon name="star" size={15} class="text-sun-400" />
+          {site.stats.averageRating} average student rating
+        </li>
+        <li class="inline-flex items-center gap-1.5">
+          <Icon name="check-circle" size={15} class="text-brand-300" />
+          No booking fees for students
+        </li>
+        <li class="inline-flex items-center gap-1.5">
+          <Icon name="video" size={15} class="text-brand-300" />
+          Video tour on every listing
+        </li>
+      </ul>
+    </Container>
+  </section>
+
+  <!-- Trust badges -->
+  <section class="border-b border-navy-900/10 bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <SectionHeading
+        eyebrow="Why students trust Stay Veno"
+        title="Built around the two things that scare you most"
+      >
+        <p>
+          Getting scammed, and turning up to a room that’s nothing like the
+          photos. Every part of how we work is designed to take those two fears
+          off the table.
+        </p>
+      </SectionHeading>
+      <TrustBadges class="mt-8" />
+    </Container>
+  </section>
+
+  <!-- Destinations -->
+  <section>
+    <Container class="py-14 sm:py-16">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <SectionHeading eyebrow="Choose your destination" title="Where are you studying?">
+          <p>15+ cities and the universities international students actually apply to.</p>
+        </SectionHeading>
+        <Button href="/destinations" variant="outline" size="sm">All destinations</Button>
+      </div>
+      <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {destinations.map((d) => <DestinationCard destination={d} />)}
+      </div>
+    </Container>
+  </section>
+
+  <!-- Featured properties -->
+  <section class="bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <SectionHeading eyebrow="Move-in ready" title="Homes students booked this month">
+          <p>Every listing verified, every one with a video tour. Prices are all-in per week.</p>
+        </SectionHeading>
+        <Button href="/properties" variant="outline" size="sm">Browse all properties</Button>
+      </div>
+      <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {featured.map((p) => <PropertyCard property={p} />)}
+      </div>
+    </Container>
+  </section>
+
+  <!-- How it works -->
+  <section>
+    <Container class="py-14 sm:py-16">
+      <SectionHeading eyebrow="How it works" title="Four steps, no cost, no pressure">
+        <p>
+          From “I have an offer” to “I have keys”, usually in two to four days.
+        </p>
+      </SectionHeading>
+      <HowItWorks class="mt-8" />
+      <div class="mt-8">
+        <Button href="/how-it-works" variant="ghost">
+          See how it works in detail <Icon name="arrow-right" size={15} />
+        </Button>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Reassurance -->
+  <section class="bg-navy-950 text-white">
+    <Container class="py-14 sm:py-16">
+      <div class="max-w-2xl">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-brand-300">
+          We know what you’re worried about
+        </p>
+        <h2 class="mt-2 text-2xl font-bold sm:text-3xl md:text-[2rem]">
+          Every worry has an answer
+        </h2>
+      </div>
+      <div class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {
+          WORRIES.map((w) => (
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-500/20 text-brand-300">
+                <Icon name={w.icon} size={20} />
+              </span>
+              <p class="mt-3 font-semibold text-white">{w.fear}</p>
+              <p class="mt-1.5 text-sm leading-relaxed text-white/70">{w.answer}</p>
+            </div>
+          ))
+        }
+      </div>
+    </Container>
+  </section>
+
+  <!-- Lead form band -->
+  <section>
+    <Container class="py-14 sm:py-16">
+      <div class="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+        <div>
+          <SectionHeading
+            eyebrow="Get a free shortlist"
+            title="Tell us your university. We’ll send options that fit."
+          >
+            <p>
+              One short form. An advisor replies {site.responseTime} with three
+              to five verified rooms — video tours included — that match your
+              budget, room type and distance to campus.
+            </p>
+          </SectionHeading>
+          <ul class="mt-6 space-y-3">
+            {
+              [
+                'No account, no fee, no obligation',
+                'We hold off on anything non-refundable until your place is confirmed',
+                'A real person on WhatsApp from search to move-in day',
+              ].map((point) => (
+                <li class="flex items-start gap-2.5 text-sm text-navy-700">
+                  <Icon name="check-circle" size={18} class="mt-0.5 shrink-0 text-brand-600" />
+                  <span>{point}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div class="rounded-2xl border border-navy-900/10 bg-white p-6 shadow-sm sm:p-8">
+          <LeadForm source="home-hero" variant="compact" submitLabel="Get my free shortlist" />
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <SectionHeading
+        eyebrow="Student stories"
+        title="From students who booked before they landed"
+      />
+      <Testimonials class="mt-8" limit={3} />
+    </Container>
+  </section>
+
+  <!-- Newsletter / lead magnet -->
+  <section>
+    <Container class="py-14">
+      <NewsletterSignup variant="card" />
+    </Container>
+  </section>
+
+  <!-- FAQ teaser -->
+  <section class="bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <div class="grid gap-10 lg:grid-cols-[0.9fr_1.4fr]">
+        <SectionHeading eyebrow="Common questions" title="The things students ask us first">
+          <p>
+            More detail on our <a href="/faq" class="font-semibold text-brand-700 underline">full FAQ page</a>.
+          </p>
+        </SectionHeading>
+        <FaqAccordion items={HOME_FAQS} name="home-faq" />
+      </div>
+    </Container>
+  </section>
+
+  <CtaBanner />
+</BaseLayout>

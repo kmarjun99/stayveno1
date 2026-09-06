@@ -1,0 +1,44 @@
+---
+import Container from './Container.astro';
+import Icon from './Icon.astro';
+import { site } from '../config';
+
+interface Props {
+  title?: string;
+  body?: string;
+  primaryLabel?: string;
+  primaryHref?: string;
+}
+const {
+  title = "Tell us where you're studying. We'll do the rest.",
+  body = 'Share your university and move-in date and an advisor sends you a verified shortlist — with video tours — usually the same day. Free for students, no obligation.',
+  primaryLabel = 'Get my free shortlist',
+  primaryHref = '/contact',
+} = Astro.props;
+const waHref = `https://wa.me/${site.whatsapp.number}`;
+---
+<section class="bg-navy-950 text-white">
+  <Container class="py-14 sm:py-16">
+    <div class="grid items-center gap-8 lg:grid-cols-[1.5fr_1fr]">
+      <div>
+        <h2 class="text-2xl font-bold sm:text-3xl md:text-[2rem]">{title}</h2>
+        <p class="mt-3 max-w-xl text-white/70">{body}</p>
+      </div>
+      <div class="flex flex-col gap-3 sm:flex-row lg:flex-col">
+        <a
+          href={primaryHref}
+          class="inline-flex items-center justify-center gap-2 rounded-full bg-brand-500 px-6 py-3.5 text-sm font-semibold text-navy-950 transition-colors hover:bg-brand-400"
+        >
+          <Icon name="sparkles" size={16} /> {primaryLabel}
+        </a>
+        <a
+          href={waHref}
+          rel="noopener"
+          class="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+        >
+          <Icon name="whatsapp" size={18} /> Chat on WhatsApp
+        </a>
+      </div>
+    </div>
+  </Container>
+</section>

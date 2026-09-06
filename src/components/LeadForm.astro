@@ -1,0 +1,225 @@
+---
+import { site, BUDGET_BANDS } from '../config';
+import Icon from './Icon.astro';
+
+interface Props {
+  source: string;
+  variant?: 'full' | 'compact';
+  defaultDestination?: string;
+  defaultMessage?: string;
+  submitLabel?: string;
+  class?: string;
+}
+const {
+  source,
+  variant = 'full',
+  defaultDestination = '',
+  defaultMessage = '',
+  submitLabel = 'Get my free shortlist',
+  class: className = '',
+} = Astro.props;
+
+const endpoint = site.formEndpoint;
+const countries = ['United Kingdom', 'Germany', 'Ireland', 'Canada', 'Not decided yet'];
+const waHref = `https://wa.me/${site.whatsapp.number}`;
+---
+<form
+  class={`lead-form flex flex-col gap-4 ${className}`}
+  action={endpoint || '/thank-you'}
+  method="POST"
+  data-demo={endpoint ? undefined : 'true'}
+  novalidate
+>
+  <input type="hidden" name="_source" value={source} />
+  <input type="hidden" name="_subject" value={`New student lead — ${source}`} />
+  <input
+    type="text"
+    name="_gotcha"
+    tabindex="-1"
+    autocomplete="off"
+    class="hidden"
+    aria-hidden="true"
+  />
+
+  <div class="grid gap-4 sm:grid-cols-2 min-w-0">
+    <div class="flex flex-col gap-1.5 min-w-0">
+      <label for="lf-name" class="text-sm font-medium text-navy-800">
+        Full name
+      </label>
+      <input
+        id="lf-name"
+        name="name"
+        type="text"
+        required
+        autocomplete="name"
+        class="w-full min-w-0 rounded-xl border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 focus:border-brand-500 focus:outline-none"
+        placeholder="Your name"
+      />
+    </div>
+    <div class="flex flex-col gap-1.5 min-w-0">
+      <label for="lf-email" class="text-sm font-medium text-navy-800">
+        Email
+      </label>
+      <input
+        id="lf-email"
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        class="w-full min-w-0 rounded-xl border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 focus:border-brand-500 focus:outline-none"
+        placeholder="you@email.com"
+      />
+    </div>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2 min-w-0">
+    <div class="flex flex-col gap-1.5 min-w-0">
+      <label for="lf-destination" class="text-sm font-medium text-navy-800">
+        Destination country
+      </label>
+      <select
+        id="lf-destination"
+        name="destination"
+        class="w-full min-w-0 rounded-xl border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 focus:border-brand-500 focus:outline-none"
+      >
+        <option value="" disabled selected={!defaultDestination}>Choose a country</option>
+        {
+          countries.map((c) => (
+            <option value={c} selected={c === defaultDestination}>
+              {c}
+            </option>
+          ))
+        }
+      </select>
+    </div>
+    <div class="flex flex-col gap-1.5 min-w-0">
+      <label for="lf-city" class="text-sm font-medium text-navy-800">
+        City or university
+      </label>
+      <input
+        id="lf-city"
+        name="city_university"
+        type="text"
+        autocomplete="off"
+        class="w-full min-w-0 rounded-xl border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 focus:border-brand-500 focus:outline-none"
+        placeholder="e.g. Manchester, or UCD"
+      />
+    </div>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2 min-w-0">
+    <div class="flex flex-col gap-1.5 min-w-0">
+      <label for="lf-movein" class="text-sm font-medium text-navy-800">
+        Move-in month
+      </label>
+      <input
+        id="lf-movein"
+        name="move_in"
+        type="month"
+        class="w-full min-w-0 rounded-xl border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 focus:border-brand-500 focus:outline-none"
+      />
+    </div>
+    <div class="flex flex-col gap-1.5 min-w-0">
+      <label for="lf-budget" class="text-sm font-medium text-navy-800">
+        Weekly budget
+      </label>
+      <select
+        id="lf-budget"
+        name="budget"
+        class="w-full min-w-0 rounded-xl border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 focus:border-brand-500 focus:outline-none"
+      >
+        <option value="" disabled selected>Choose a range</option>
+        {BUDGET_BANDS.map((b) => <option value={b}>{b}</option>)}
+      </select>
+    </div>
+  </div>
+
+  {
+    variant === 'full' && (
+      <div class="flex flex-col gap-1.5 min-w-0">
+        <label for="lf-message" class="text-sm font-medium text-navy-800">
+          Anything else we should know? <span class="text-navy-400">(optional)</span>
+        </label>
+        <textarea
+          id="lf-message"
+          name="message"
+          rows="3"
+          class="w-full min-w-0 rounded-xl border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 focus:border-brand-500 focus:outline-none"
+          placeholder="Ensuite preferred, need a visa-refusal clause, arriving mid-September…"
+          set:text={defaultMessage}
+        />
+      </div>
+    )
+  }
+
+  <label class="flex items-start gap-2.5 text-xs text-navy-500">
+    <input
+      type="checkbox"
+      name="consent"
+      required
+      class="mt-0.5 h-4 w-4 rounded border-navy-300 text-brand-600 focus:ring-brand-500"
+    />
+    <span>
+      I’d like Stay Veno to contact me about accommodation options. I can
+      unsubscribe anytime. See the
+      <a href="/privacy" class="underline hover:text-brand-700">privacy policy</a>.
+    </span>
+  </label>
+
+  <button
+    type="submit"
+    class="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+  >
+    <Icon name="sparkles" size={16} />
+    {submitLabel}
+  </button>
+
+  <p class="lead-status hidden rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800" role="status" />
+
+  <p class="text-center text-xs text-navy-500">
+    Prefer to chat?
+    <a href={waHref} rel="noopener" class="font-semibold text-brand-700 hover:underline">
+      Message us on WhatsApp
+    </a>
+    — replies {site.responseTime}.
+  </p>
+</form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('.lead-form').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      const honey = form.querySelector<HTMLInputElement>('input[name="_gotcha"]');
+      if (honey && honey.value) {
+        e.preventDefault();
+        return;
+      }
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+      }
+      const isDemo = form.dataset.demo === 'true';
+      if (!isDemo) {
+        try {
+          await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' },
+          });
+        } catch {
+          /* proceed to thank-you regardless */
+        }
+      }
+      const params = new URLSearchParams();
+      const src = form.querySelector<HTMLInputElement>('input[name="_source"]');
+      if (src) params.set('from', src.value);
+      window.location.href = `/thank-you?${params.toString()}`;
+    });
+  });
+</script>

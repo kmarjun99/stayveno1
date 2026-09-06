@@ -1,0 +1,125 @@
+---
+import { site } from '../config';
+import Container from './Container.astro';
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import NewsletterSignup from './NewsletterSignup.astro';
+
+const year = new Date().getFullYear();
+
+const columns = [
+  {
+    title: 'Destinations',
+    links: [
+      { label: 'Student housing in the UK', href: '/destinations/uk' },
+      { label: 'Student housing in Germany', href: '/destinations/germany' },
+      { label: 'Student housing in Ireland', href: '/destinations/ireland' },
+      { label: 'Student housing in Canada', href: '/destinations/canada' },
+      { label: 'All destinations', href: '/destinations' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'How it works', href: '/how-it-works' },
+      { label: 'About us', href: '/about' },
+      { label: 'All properties', href: '/properties' },
+      { label: 'FAQ', href: '/faq' },
+      { label: 'Contact', href: '/contact' },
+    ],
+  },
+  {
+    title: 'Support',
+    links: [
+      { label: 'Get free help', href: '/contact' },
+      { label: `WhatsApp ${site.whatsapp.display}`, href: `https://wa.me/${site.whatsapp.number}` },
+      { label: site.email, href: `mailto:${site.email}` },
+      { label: site.phone, href: site.phoneHref },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Privacy policy', href: '/privacy' },
+      { label: 'Terms of use', href: '/terms' },
+    ],
+  },
+];
+
+const socials = [
+  { name: 'instagram', href: site.social.instagram, label: 'Instagram' },
+  { name: 'tiktok', href: site.social.tiktok, label: 'TikTok' },
+  { name: 'linkedin', href: site.social.linkedin, label: 'LinkedIn' },
+  { name: 'youtube', href: site.social.youtube, label: 'YouTube' },
+];
+---
+<footer class="border-t border-navy-900/10 bg-navy-950 text-white">
+  <Container class="py-14">
+    <div class="grid gap-12 lg:grid-cols-[1.1fr_2fr]">
+      <div>
+        <Logo tone="light" />
+        <p class="mt-4 max-w-xs text-sm leading-relaxed text-white/70">
+          Verified student accommodation across the UK, Germany, Ireland and
+          Canada — with a video tour before you book. Free for students.
+        </p>
+        <div class="mt-6">
+          <NewsletterSignup variant="compact" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 sm:grid-cols-4">
+        {
+          columns.map((col) => (
+            <div>
+              <h2 class="text-sm font-semibold text-white">{col.title}</h2>
+              <ul class="mt-3 space-y-2.5">
+                {col.links.map((link) => (
+                  <li>
+                    <a
+                      href={link.href}
+                      class="text-sm text-white/70 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div
+      class="mt-12 flex flex-col gap-6 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p class="max-w-2xl text-xs leading-relaxed text-white/55">
+        {site.legalName} is a student accommodation search and booking service.
+        We’re paid a commission by accommodation providers when a student moves
+        in, which is why our help is free for students. You always contract
+        directly with the provider.
+      </p>
+      <div class="flex items-center gap-3">
+        {
+          socials.map((s) => (
+            <a
+              href={s.href}
+              rel="noopener"
+              class="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white"
+              aria-label={s.label}
+            >
+              <Icon
+                name={s.name === 'instagram' || s.name === 'youtube' ? 'globe' : s.name === 'linkedin' ? 'users' : 'sparkles'}
+                size={16}
+              />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    <p class="mt-6 text-xs text-white/45">
+      © {year} {site.legalName}. All rights reserved.
+    </p>
+  </Container>
+</footer>

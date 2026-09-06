@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/Container.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PropertyCard from '../../components/PropertyCard.astro';
+import PropertyFilters from '../../components/PropertyFilters.astro';
+import CtaBanner from '../../components/CtaBanner.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../config';
+import {
+  getProperties,
+  getCityOptions,
+  getRoomTypeOptions,
+  getPriceBounds,
+} from '../../lib/properties';
+import { breadcrumbSchema } from '../../lib/seo';
+
+const properties = await getProperties();
+const cities = await getCityOptions();
+const roomTypes = await getRoomTypeOptions();
+const priceBounds = await getPriceBounds();
+
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: properties.map((p, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: `${site.url}/properties/${p.id}`,
+    name: p.data.name,
+  })),
+};
+---
+<BaseLayout
+  title="All Student Accommodation — Filter by City, Price & Distance to Campus"
+  description="Browse verified student accommodation across the UK, Germany, Ireland and Canada. Filter by city, weekly price, room type and walking distance to campus. Video tour on every listing."
+  jsonLd={[
+    breadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Properties', path: '/properties' },
+    ]),
+    itemList,
+  ]}
+>
+  <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Properties' }]} />
+
+  <Container class="py-10 sm:py-12">
+    <h1 class="text-3xl font-extrabold text-navy-900 sm:text-4xl">
+      Verified student accommodation
+    </h1>
+    <p class="mt-3 max-w-2xl text-navy-600">
+      Every home below is checked against a real provider contract and comes with
+      a video tour. Prices are all-in, per week. Adjust the filters to match your
+      university, budget and commute.
+    </p>
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[280px_1fr]">
+      <PropertyFilters cities={cities} roomTypes={roomTypes} priceBounds={priceBounds} />
+
+      <div>
+        <div class="mb-4 flex items-center justify-between border-b border-navy-900/10 pb-3">
+          <p class="text-sm text-navy-600">
+            <span data-results-count class="font-bold text-navy-900">{properties.length}</span>
+            {' '}homes match
+          </p>
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:gap-2"
+          >
+            <Icon name="sparkles" size={15} /> Can’t find it? Ask an advisor
+          </a>
+        </div>
+
+        <div id="property-grid" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {properties.map((p) => <PropertyCard property={p} />)}
+        </div>
+
+        <div
+          id="no-results"
+          hidden
+          class="rounded-2xl border border-dashed border-navy-300 bg-navy-50/60 p-10 text-center"
+        >
+          <p class="font-semibold text-navy-900">No homes match those filters</p>
+          <p class="mt-1.5 text-sm text-navy-600">
+            Try widening the price or distance — or let us do the searching.
+          </p>
+          <a
+            href="/contact"
+            class="mt-4 inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+          >
+            <Icon name="sparkles" size={15} /> Request a custom shortlist
+          </a>
+        </div>
+      </div>
+    </div>
+  </Container>
+
+  <CtaBanner />
+</BaseLayout>

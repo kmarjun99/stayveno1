@@ -1,0 +1,225 @@
+---
+/**
+ * Illustrated, request-free placeholder imagery in the Stay Veno palette.
+ *
+ * Pass `src` with a real photo path (e.g. "/images/hero.jpg") to use a photo
+ * instead — everything else on the site already routes through this component,
+ * so swapping in real photography later is a one-line change per usage.
+ */
+interface Props {
+  preset?: 'room' | 'city' | 'students' | 'campus' | 'abstract';
+  seed?: string;
+  alt: string;
+  src?: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  width?: number;
+  height?: number;
+}
+const {
+  preset = 'abstract',
+  seed = 'stayveno',
+  alt,
+  src,
+  class: className = '',
+  loading = 'lazy',
+  width = 1200,
+  height = 800,
+} = Astro.props;
+
+function hash(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
+}
+const h = hash(`${preset}:${seed}`);
+const pick = <T,>(arr: T[]): T => arr[h % arr.length];
+const jitter = (base: number, range: number, salt = 1) =>
+  base + ((Math.floor(h / salt) % (range * 2)) - range);
+
+const uid = `ph-${h.toString(36)}`;
+
+// Brand palette
+const C = {
+  brand100: '#cff7fd',
+  brand200: '#a4ecf9',
+  brand300: '#66dcf2',
+  brand500: '#08a5c9',
+  brand700: '#0d6a89',
+  brand900: '#14495f',
+  navy700: '#2e4a5d',
+  navy900: '#102a39',
+  navy950: '#081b26',
+  sun: '#ffb44d',
+  cream: '#fff4e2',
+  white: '#ffffff',
+};
+
+const accents = [C.sun, C.brand300, C.brand200, C.cream];
+
+let scene = '';
+if (preset === 'room') {
+  const blanket = pick([C.sun, C.brand300, C.brand500]);
+  const wx = jitter(150, 40, 3);
+  scene = `
+    <rect width="1200" height="800" fill="url(#${uid}-warm)"/>
+    <rect x="0" y="545" width="1200" height="255" fill="${C.brand100}"/>
+    <rect x="0" y="545" width="1200" height="10" fill="${C.brand200}"/>
+    <rect x="${wx}" y="120" width="330" height="300" rx="14" fill="${C.brand300}"/>
+    <rect x="${wx}" y="120" width="330" height="300" rx="14" fill="none" stroke="${C.white}" stroke-width="16"/>
+    <line x1="${wx + 165}" y1="120" x2="${wx + 165}" y2="420" stroke="${C.white}" stroke-width="12"/>
+    <line x1="${wx}" y1="270" x2="${wx + 330}" y2="270" stroke="${C.white}" stroke-width="12"/>
+    <ellipse cx="640" cy="690" rx="430" ry="60" fill="${C.white}" opacity="0.55"/>
+    <rect x="590" y="430" width="470" height="150" rx="16" fill="${C.white}"/>
+    <rect x="590" y="400" width="180" height="150" rx="16" fill="${C.white}"/>
+    <rect x="600" y="360" width="150" height="70" rx="12" fill="${C.brand100}"/>
+    <path d="M590 470 h470 v90 a16 16 0 0 1 -16 16 h-438 a16 16 0 0 1 -16 -16 Z" fill="${blanket}"/>
+    <rect x="600" y="560" width="30" height="70" rx="6" fill="${C.navy700}"/>
+    <rect x="1020" y="560" width="30" height="70" rx="6" fill="${C.navy700}"/>
+    <line x1="1110" y1="560" x2="1110" y2="360" stroke="${C.navy700}" stroke-width="10"/>
+    <path d="M1075 360 h70 l-14 44 h-42 Z" fill="${C.sun}"/>
+    <circle cx="250" cy="150" r="22" fill="${C.sun}" opacity="0.9"/>
+  `;
+} else if (preset === 'city') {
+  const b1 = jitter(120, 30, 5);
+  scene = `
+    <rect width="1200" height="800" fill="url(#${uid}-sky)"/>
+    <circle cx="${jitter(940, 120, 7)}" cy="170" r="70" fill="${C.sun}" opacity="0.9"/>
+    <g fill="${C.navy900}">
+      <rect x="${b1}" y="420" width="150" height="380"/>
+      <rect x="${b1 + 180}" y="300" width="180" height="500"/>
+      <rect x="${b1 + 400}" y="470" width="130" height="330"/>
+      <rect x="${b1 + 560}" y="230" width="200" height="570"/>
+      <rect x="${b1 + 800}" y="380" width="170" height="420"/>
+      <rect x="${b1 + 1000}" y="330" width="150" height="470"/>
+    </g>
+    <g fill="${C.navy700}" opacity="0.9">
+      <rect x="${b1 + 60}" y="360" width="90" height="440"/>
+      <rect x="${b1 + 700}" y="300" width="110" height="500"/>
+    </g>
+    <g fill="${C.sun}" opacity="0.85">
+      ${Array.from({ length: 26 })
+        .map((_, i) => {
+          const gx = b1 + 20 + ((i * 97) % 1120);
+          const gy = 320 + ((i * 53) % 380);
+          return `<rect x="${gx}" y="${gy}" width="14" height="18"/>`;
+        })
+        .join('')}
+    </g>
+    <rect x="0" y="770" width="1200" height="30" fill="${C.navy950}"/>
+  `;
+} else if (preset === 'students') {
+  const shirts = [C.sun, C.white, C.brand200, C.cream];
+  const px = jitter(0, 40, 3);
+  const person = (x: number, s: string, bag: string) => `
+    <g transform="translate(${x + px},0)">
+      <rect x="0" y="470" width="150" height="240" rx="34" fill="${s}"/>
+      <circle cx="75" cy="420" r="52" fill="${C.cream}"/>
+      <rect x="-34" y="486" width="60" height="150" rx="26" fill="${bag}"/>
+      <rect x="-24" y="512" width="34" height="70" rx="10" fill="${C.navy900}" opacity="0.25"/>
+    </g>`;
+  scene = `
+    <rect width="1200" height="800" fill="url(#${uid}-brand)"/>
+    <g opacity="0.28" fill="none" stroke="${C.white}" stroke-width="10">
+      <rect x="120" y="90" width="960" height="470" rx="12"/>
+      <line x1="120" y1="250" x2="1080" y2="250"/>
+      <line x1="400" y1="90" x2="400" y2="560"/>
+      <line x1="800" y1="90" x2="800" y2="560"/>
+    </g>
+    <ellipse cx="600" cy="740" rx="560" ry="70" fill="${C.navy950}" opacity="0.25"/>
+    ${person(250, pick(shirts), C.sun)}
+    ${person(520, shirts[(h + 1) % shirts.length], C.brand700)}
+    ${person(790, shirts[(h + 2) % shirts.length], C.navy900)}
+    <circle cx="1010" cy="180" r="30" fill="${C.sun}"/>
+  `;
+} else if (preset === 'campus') {
+  const roof = pick([C.brand700, C.navy900, C.brand500]);
+  scene = `
+    <rect width="1200" height="800" fill="url(#${uid}-soft)"/>
+    <rect x="0" y="620" width="1200" height="180" fill="${C.brand100}"/>
+    <path d="M470 300 h520 v320 h-520 Z" fill="${C.white}"/>
+    <path d="M450 300 l280 -150 l280 150 Z" fill="${roof}"/>
+    <rect x="560" y="150" width="120" height="200" fill="${C.white}"/>
+    <path d="M545 150 l75 -70 l75 70 Z" fill="${roof}"/>
+    <circle cx="620" cy="240" r="34" fill="${C.brand300}"/>
+    <line x1="620" y1="240" x2="620" y2="216" stroke="${C.navy900}" stroke-width="6"/>
+    <line x1="620" y1="240" x2="638" y2="248" stroke="${C.navy900}" stroke-width="6"/>
+    <g fill="${C.brand300}">
+      <rect x="520" y="360" width="60" height="90" rx="6"/>
+      <rect x="620" y="360" width="60" height="90" rx="6"/>
+      <rect x="780" y="360" width="60" height="90" rx="6"/>
+      <rect x="880" y="360" width="60" height="90" rx="6"/>
+    </g>
+    <rect x="690" y="470" width="90" height="150" rx="6" fill="${roof}"/>
+    <g>
+      <rect x="250" y="470" width="26" height="150" fill="${C.navy700}"/>
+      <circle cx="263" cy="440" r="80" fill="${C.brand500}"/>
+      <rect x="980" y="470" width="26" height="150" fill="${C.navy700}"/>
+      <circle cx="993" cy="440" r="80" fill="${C.brand700}"/>
+    </g>
+  `;
+} else {
+  // abstract
+  scene = `
+    <rect width="1200" height="800" fill="url(#${uid}-brand)"/>
+    <circle cx="${jitter(240, 120, 3)}" cy="${jitter(220, 90, 5)}" r="180" fill="${C.white}" opacity="0.10"/>
+    <circle cx="${jitter(980, 120, 7)}" cy="${jitter(560, 90, 11)}" r="240" fill="${C.navy950}" opacity="0.25"/>
+    <circle cx="${jitter(900, 80, 13)}" cy="200" r="70" fill="${pick(accents)}" opacity="0.9"/>
+    <rect x="${jitter(420, 120, 17)}" y="470" width="320" height="320" rx="40" fill="${C.white}" opacity="0.08"/>
+    <path d="M0 640 Q 300 560 600 640 T 1200 640 V800 H0 Z" fill="${C.navy950}" opacity="0.30"/>
+  `;
+}
+---
+{
+  /* Real photo: render it, with the illustration kept as a hidden sibling that
+     is revealed if the photo fails to load. */
+  src && (
+    <img
+      src={src}
+      alt={alt}
+      loading={loading}
+      decoding="async"
+      width={width}
+      height={height}
+      class={className}
+      onerror={'this.hidden=true;this.nextElementSibling.hidden=false'}
+    />
+  )
+}
+<svg
+  role="img"
+  aria-label={alt}
+  viewBox="0 0 1200 800"
+  preserveAspectRatio="xMidYMid slice"
+  class={className}
+  {...(src ? { hidden: true } : {})}
+  xmlns="http://www.w3.org/2000/svg"
+>
+      <defs>
+        <linearGradient id={`${uid}-brand`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color={C.brand500} />
+          <stop offset="1" stop-color={C.brand900} />
+        </linearGradient>
+        <linearGradient id={`${uid}-warm`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color={C.brand100} />
+          <stop offset="1" stop-color="#ffffff" />
+        </linearGradient>
+        <linearGradient id={`${uid}-sky`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color={C.brand300} />
+          <stop offset="1" stop-color={C.brand100} />
+        </linearGradient>
+        <linearGradient id={`${uid}-soft`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color={C.brand200} />
+          <stop offset="1" stop-color={C.brand100} />
+        </linearGradient>
+        <radialGradient id={`${uid}-vig`} cx="0.5" cy="0.42" r="0.75">
+          <stop offset="0.55" stop-color="#000000" stop-opacity="0" />
+          <stop offset="1" stop-color="#000000" stop-opacity="0.20" />
+        </radialGradient>
+      </defs>
+      <Fragment set:html={scene} />
+      <rect width="1200" height="800" fill={`url(#${uid}-vig)`} />
+</svg>

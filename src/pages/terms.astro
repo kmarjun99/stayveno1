@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { site } from '../config';
+import { breadcrumbSchema } from '../lib/seo';
+
+const updated = 'September 2026';
+---
+<BaseLayout
+  title="Terms of Use | Stay Veno"
+  description="The terms on which Stay Veno provides its student accommodation search and booking service."
+  jsonLd={breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Terms of use', path: '/terms' },
+  ])}
+>
+  <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Terms of use' }]} />
+
+  <section>
+    <Container size="narrow" class="py-14 sm:py-16">
+      <h1 class="text-3xl font-extrabold text-navy-900">Terms of use</h1>
+      <p class="mt-2 text-sm text-navy-500">Last updated: {updated}</p>
+
+      <div class="rich mt-8 max-w-none text-navy-700">
+        <p class="rounded-xl border border-sun-400/40 bg-sun-400/10 p-4 text-sm">
+          <strong>Template notice:</strong> placeholder wording for completeness.
+          Replace with terms drafted for your business and jurisdictions before
+          launch.
+        </p>
+
+        <h2>Our service</h2>
+        <p>
+          Stay Veno helps students find and book verified student accommodation.
+          We provide information, a shortlist and booking support. We are not a
+          landlord or letting agent, and we are not a party to your tenancy or
+          licence agreement, which you enter into directly with the accommodation
+          provider.
+        </p>
+
+        <h2>No fee for students</h2>
+        <p>
+          Our service is free for students. We are paid a commission by the
+          accommodation provider if you complete a booking and move in.
+        </p>
+
+        <h2>Listings and information</h2>
+        <p>
+          We verify each listing against a provider contract and take reasonable
+          care that details are accurate, but prices, availability and terms are
+          set by providers and can change. Always check the final agreement
+          before you sign.
+        </p>
+
+        <h2>Your responsibilities</h2>
+        <ul>
+          <li>Give us accurate information about your needs and circumstances.</li>
+          <li>Read any contract carefully and ask us anything that is unclear.</li>
+          <li>Use the site lawfully and not misuse the forms or chat channels.</li>
+        </ul>
+
+        <h2>Liability</h2>
+        <p>
+          To the extent permitted by law, Stay Veno is not liable for the acts or
+          omissions of accommodation providers, or for losses arising from a
+          contract you enter into with a provider. Nothing in these terms limits
+          liability that cannot lawfully be limited.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          Questions about these terms: <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+      </div>
+    </Container>
+  </section>
+</BaseLayout>

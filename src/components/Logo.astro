@@ -1,0 +1,36 @@
+---
+interface Props {
+  class?: string;
+  tone?: 'dark' | 'light';
+}
+const { class: className = '', tone = 'dark' } = Astro.props;
+const text = tone === 'light' ? 'text-white' : 'text-navy-900';
+---
+<a
+  href="/"
+  class={`inline-flex items-center gap-2.5 font-display font-extrabold tracking-tight ${text} ${className}`}
+  aria-label="Stay Veno — home"
+>
+  <span
+    class="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-white shadow-sm"
+  >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 11 12 4l8 7"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M6 10v9h12v-9"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path d="m9 19 3-5 3 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  </span>
+  <span class="text-lg">Stay&nbsp;Veno</span>
+</a>

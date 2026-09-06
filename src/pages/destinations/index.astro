@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/Container.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import DestinationCard from '../../components/DestinationCard.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import CtaBanner from '../../components/CtaBanner.astro';
+import Icon from '../../components/Icon.astro';
+import { getDestinations } from '../../lib/properties';
+import { breadcrumbSchema } from '../../lib/seo';
+
+const destinations = await getDestinations();
+const totalCities = destinations.reduce((n, d) => n + d.data.cities.length, 0);
+
+const vetting = [
+  {
+    icon: 'building',
+    title: 'A real, registered provider',
+    body: 'We confirm the operator is a registered business at a verifiable address before anything goes on the site.',
+  },
+  {
+    icon: 'calendar',
+    title: 'Confirmed available for your dates',
+    body: 'No listing stays live once it is full. If you can see it, the room can be booked for your move-in.',
+  },
+  {
+    icon: 'document',
+    title: 'Terms we have actually read',
+    body: 'We review the tenancy or licence agreement so we can explain the deposit, notice and cancellation clauses to you.',
+  },
+  {
+    icon: 'video',
+    title: 'A current video tour',
+    body: 'Every listing carries a walkthrough of the room type you would get, so you never commit from photos alone.',
+  },
+];
+---
+<BaseLayout
+  title="Student Accommodation Destinations — UK, Germany, Ireland & Canada"
+  description="Verified student accommodation across the UK, Germany, Ireland and Canada. Explore the cities and universities Stay Veno covers, with a video tour on every listing. Free for students."
+  jsonLd={breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Destinations', path: '/destinations' },
+  ])}
+>
+  <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Destinations' }]} />
+
+  <section>
+    <Container class="py-14 sm:py-16">
+      <SectionHeading
+        eyebrow="Destinations"
+        title="Four countries. 15+ cities. The universities international students actually apply to."
+      >
+        <p>
+          We go deep in a small number of places rather than thin everywhere.
+          That’s how we can verify every room and answer questions about the
+          specific neighbourhood, commute and contract.
+        </p>
+      </SectionHeading>
+
+      <div class="mt-8 grid gap-6 sm:grid-cols-2">
+        {destinations.map((d) => <DestinationCard destination={d} size="lg" />)}
+      </div>
+    </Container>
+  </section>
+
+  <section class="bg-navy-50/60">
+    <Container class="py-14 sm:py-16">
+      <SectionHeading
+        eyebrow="How a listing gets on the site"
+        title="Four checks before you ever see it"
+      />
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          vetting.map((v) => (
+            <div class="rounded-2xl border border-navy-900/10 bg-white p-5">
+              <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-700">
+                <Icon name={v.icon} size={22} />
+              </span>
+              <h3 class="mt-4 font-semibold text-navy-900">{v.title}</h3>
+              <p class="mt-1.5 text-sm text-navy-600">{v.body}</p>
+            </div>
+          ))
+        }
+      </div>
+      <p class="mt-6 text-sm text-navy-500">
+        Covering {totalCities} cities today, and adding more as verified supply grows.
+        Studying somewhere we don’t list yet?
+        <a href="/contact" class="font-semibold text-brand-700 underline">Tell us</a> — we
+        often can still help.
+      </p>
+    </Container>
+  </section>
+
+  <CtaBanner />
+</BaseLayout>

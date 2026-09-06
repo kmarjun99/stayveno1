@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { site } from '../config';
+import { breadcrumbSchema } from '../lib/seo';
+
+const updated = 'September 2026';
+---
+<BaseLayout
+  title="Privacy Policy | Stay Veno"
+  description="How Stay Veno collects, uses and protects the personal information students share with us."
+  jsonLd={breadcrumbSchema([
+    { name: 'Home', path: '/' },
+    { name: 'Privacy policy', path: '/privacy' },
+  ])}
+>
+  <Breadcrumbs items={[{ name: 'Home', path: '/' }, { name: 'Privacy policy' }]} />
+
+  <section>
+    <Container size="narrow" class="py-14 sm:py-16">
+      <h1 class="text-3xl font-extrabold text-navy-900">Privacy policy</h1>
+      <p class="mt-2 text-sm text-navy-500">Last updated: {updated}</p>
+
+      <div class="rich mt-8 max-w-none text-navy-700">
+        <p class="rounded-xl border border-sun-400/40 bg-sun-400/10 p-4 text-sm">
+          <strong>Template notice:</strong> this is placeholder wording to make
+          the site complete. Have it reviewed by a qualified adviser and tailored
+          to your actual data practices, processors and jurisdictions before
+          launch.
+        </p>
+
+        <h2>Who we are</h2>
+        <p>
+          {site.legalName} (“Stay Veno”, “we”) operates {site.domain} and helps
+          students find and book verified accommodation. For questions about this
+          policy, email <a href={`mailto:${site.email}`}>{site.email}</a>.
+        </p>
+
+        <h2>What we collect</h2>
+        <ul>
+          <li>
+            <strong>Enquiry details</strong> you give us: name, email, phone or
+            WhatsApp number, destination, university, move-in date, budget and
+            any message.
+          </li>
+          <li>
+            <strong>Booking details</strong> needed to progress a request with an
+            accommodation provider.
+          </li>
+          <li>
+            <strong>Usage data</strong>: basic analytics about how the site is
+            used, so we can improve it.
+          </li>
+        </ul>
+
+        <h2>How we use it</h2>
+        <ul>
+          <li>To respond to your enquiry and prepare a shortlist.</li>
+          <li>
+            To introduce you to accommodation providers and support your booking.
+          </li>
+          <li>
+            To send service messages and, if you opt in, occasional housing tips.
+            You can unsubscribe at any time.
+          </li>
+        </ul>
+
+        <h2>Who we share it with</h2>
+        <p>
+          We share the minimum necessary with the accommodation provider(s)
+          relevant to your request, and with service providers who help us run
+          the site (for example email and form tools). We do not sell your
+          personal data.
+        </p>
+
+        <h2>Your rights</h2>
+        <p>
+          Depending on where you live, you may have the right to access, correct
+          or delete your data, or to object to certain processing. Contact
+          <a href={`mailto:${site.email}`}>{site.email}</a> and we will respond.
+        </p>
+
+        <h2>Retention</h2>
+        <p>
+          We keep enquiry data for as long as needed to help you and to meet
+          legal and accounting requirements, then delete or anonymise it.
+        </p>
+      </div>
+    </Container>
+  </section>
+</BaseLayout>
